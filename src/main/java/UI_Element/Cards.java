@@ -1,9 +1,11 @@
 package UI_Element;
 
+import Controller.Home;
 import Controller.MainPage;
 import Data.Student;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -211,12 +213,11 @@ public class Cards
 
         ContextMenu contextMenu = new ContextMenu();
 
-        MenuItem editItem = new MenuItem("Edit");
+
         MenuItem detailsItem = new MenuItem("Details");
         MenuItem deleteItem = new MenuItem("Delete");
 
         contextMenu.getItems().addAll(
-                editItem,
                 detailsItem,
                 deleteItem
         );
@@ -232,14 +233,7 @@ public class Cards
             event.consume();
         });
 
-        editItem.setOnAction(event -> {
 
-            Student std =
-                    (Student) card.getUserData();
-
-            MainPage.getInstance().showEditStudentPane(std);
-
-        });
 
         detailsItem.setOnAction(event -> {
 
@@ -248,6 +242,43 @@ public class Cards
 
             MainPage.getInstance().showStudentDetails(std);
 
+        });
+
+        deleteItem.setOnAction(event -> {
+            Platform.runLater(() -> {
+
+                Student std = (Student) card.getUserData();
+
+                // Remove std from every other student's cannotSitWith list.
+                for (Student stu : Student.students)
+                {
+                    stu.getCannotSitWith().remove(std);
+                }
+
+                // Remove std from the master list and from the separation menu.
+                Student.students.remove(std);
+                CheckMenu.getInstance().removeCheckMenuItem(std, MainPage.getInstance().getSeprationMenu());
+
+                // Rebuild the whole VBox from the now-updated Student.students,
+                // instead of patching individual cards in place — this avoids
+                // the ConcurrentModificationException entirely and guarantees
+                // every card reflects the current cannotSitWith state.
+                VBox studentVBox = MainPage.getInstance().getStudentVBox();
+                studentVBox.getChildren().clear();
+
+                for (Student stu : Student.students)
+                {
+                    Cards.getInstance().createCard(stu, studentVBox);
+                }
+
+                MainPage.getInstance().getGuestNumLabel().setText(
+                        String.valueOf(
+                                Integer.parseInt(
+                                        MainPage.getInstance().getGuestNumLabel().getText().strip()
+                                ) - 1
+                        )
+                );
+            });
         });
 
         // Retrieve the UI elements using their fx:id.

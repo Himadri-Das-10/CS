@@ -36,7 +36,7 @@ public class SceneManager
 
 
         }
-        catch(IOException e){ System.out.println("The scene file could not be loaded"); }
+        catch(IOException e){ System.out.println("The scene file could not be loaded"); e.printStackTrace(); }
 
 
 

@@ -45,11 +45,34 @@ public class MainPage {
     private Pane addStudentPane;
 
     @FXML
+    private TextField ageDTF;
+
+    @FXML
     private TextField ageTF;
 
     @FXML
-    private Button finishBtn;
+    private Button allotStudentsBtn;
 
+    @FXML
+    private MenuButton cannotSitWithD;
+
+    @FXML
+    private MenuButton classMenu;
+
+    @FXML
+    private MenuButton classMenuButtonD;
+
+    @FXML
+    private Pane detailsPane;
+
+    @FXML
+    private MenuButton divisionMenu;
+
+    @FXML
+    private MenuButton divisionMenuBtnD;
+
+    @FXML
+    private Button editBtn;
 
     @FXML
     private Pane errorPane;
@@ -58,28 +81,10 @@ public class MainPage {
     private Text errorText;
 
     @FXML
-    private AnchorPane root;
-
-    @FXML
-    private Button okBtn;
-
-    @FXML
-    private Button allotStudentsBtn;
-
-    @FXML
-    private MenuButton classMenu;
-
-    @FXML
-    private MenuButton divisionMenu;
-
-    @FXML
-    private MenuButton seatingMenu;
-
-    @FXML
     private Button exportToPDFBtn;
 
     @FXML
-    private GridPane seatingPlan;
+    private Button finishBtn;
 
     @FXML
     private Label guestNumLabel;
@@ -91,13 +96,28 @@ public class MainPage {
     private Button imageBtn;
 
     @FXML
+    private TextField nameDTF;
+
+    @FXML
     private TextField nameTF;
 
     @FXML
-    private TextField studentSearch;
+    private Button okBtn;
+
+    @FXML
+    private Button okayBtnD;
 
     @FXML
     private MenuButton personalizeMenu;
+
+    @FXML
+    private AnchorPane root;
+
+    @FXML
+    private MenuButton seatingMenu;
+
+    @FXML
+    private MenuButton seatingPreferenceD;
 
     @FXML
     private MenuButton seprationMenu;
@@ -109,13 +129,30 @@ public class MainPage {
     private MenuButton sexMenu;
 
     @FXML
+    private MenuButton sexMenuButtonD;
+
+    @FXML
     private ImageView studentImage;
+
+    @FXML
+    private ImageView studentImageD;
+
+    @FXML
+    private TextField studentSearch;
 
     @FXML
     private VBox studentVBox;
 
     @FXML
     private TextField usernameTF;
+
+
+
+    private boolean editMode = false;
+    private Student editingStudent;
+
+
+
 
 
 
@@ -301,6 +338,13 @@ public class MainPage {
         );
 
         CheckMenu.getInstance().createCheckMenuItem(newStudent, seprationMenu);
+        for (MenuItem item : seprationMenu.getItems())
+        {
+            if (item instanceof CheckMenuItem checkMenuItem)
+            {
+                checkMenuItem.setSelected(false);
+            }
+        }
     }
 
 
@@ -434,6 +478,147 @@ public class MainPage {
         errorPane.setVisible(!errorPane.isVisible());
     }
 
+    @FXML
+    void okayBtnDClicked(ActionEvent event)
+    {
+        if(editMode)
+        {
+            if (nameDTF.getText().isBlank())
+            {
+                nameDTF.clear();
+                nameDTF.setPromptText("Name is mandatory");
+                return;
+            }
+
+            String name = nameDTF.getText().strip();
+
+            String age;
+
+            if (ageDTF.getText().isBlank())
+            {
+                age = String.valueOf(CODES.EMPTY);
+            }
+            else
+            {
+                try
+                {
+                    age = String.valueOf(
+                            Integer.parseInt(ageDTF.getText().strip())
+                    );
+                }
+                catch (NumberFormatException e)
+                {
+                    ageDTF.clear();
+                    ageDTF.setPromptText("Age should be a number");
+                    return;
+                }
+            }
+
+// Get the selected values from the menus.
+// If nothing was selected, store CODES.EMPTY.
+            String sex = sexMenuButtonD.getText().isBlank() || sexMenuButtonD.getText().equals("Choose")
+                    ? String.valueOf(CODES.EMPTY)
+                    : sexMenuButtonD.getText().strip();
+
+            String classLevel = classMenuButtonD.getText().isBlank() || classMenuButtonD.getText().equals("Choose")
+                    ? String.valueOf(CODES.EMPTY)
+                    : classMenuButtonD.getText().strip();
+
+            String division = divisionMenuBtnD.getText().isBlank() || divisionMenuBtnD.getText().equals("Choose")
+                    ? String.valueOf(CODES.EMPTY)
+                    : divisionMenuBtnD.getText().strip();
+
+            String seatingPreference = seatingPreferenceD.getText().isBlank() || seatingPreferenceD.getText().equals("Select")
+                    ? String.valueOf(CODES.EMPTY)
+                    : seatingPreferenceD.getText().strip();
+
+// Get the selected student image.
+            Image img = studentImageD.getImage();
+
+            Student newStudent = new Student(
+                    name,
+                    age,
+                    classLevel,
+                    division,
+                    sex,
+                    seatingPreference,
+                    img,
+                    CheckMenu.getInstance().getSelectedStudents(cannotSitWithD)
+            );
+
+
+
+            Student.students.remove(editingStudent);
+            for(Node nd: studentVBox.getChildren())
+            {
+                if(nd.getUserData().equals(editingStudent))
+                {
+                    studentVBox.getChildren().remove(nd);
+                    break;
+                }
+            }
+
+            editingStudent = null;
+            Cards.getInstance().createCard(newStudent, studentVBox);
+
+
+
+
+
+            CheckMenu.getInstance().createCheckMenuItem(newStudent, cannotSitWithD);
+
+            detailsPane.setVisible(false);
+            editMode = false;
+        }
+        else
+        {
+            detailsPane.setVisible(!detailsPane.isVisible());
+        }
+
+    }
+
+    @FXML
+    void editBtnClicked(ActionEvent event)
+    {
+
+        nameDTF.setEditable(true);
+        ageDTF.setEditable(true);
+        studentImageD.setDisable(false);
+        for (MenuItem item : classMenuButtonD.getItems())
+        {
+            item.setDisable(false);
+        }
+
+        for (MenuItem item : divisionMenuBtnD.getItems())
+        {
+            item.setDisable(false);
+        }
+
+        for (MenuItem item : sexMenuButtonD.getItems())
+        {
+            item.setDisable(false);
+        }
+
+        for (MenuItem item : seatingPreferenceD.getItems())
+        {
+            item.setDisable(false);
+        }
+
+
+        cannotSitWithD.getItems().clear();
+        for(Student student : Student.students)
+        {
+            if(student.equals(editingStudent))
+                continue;
+            else
+                CheckMenu.getInstance().createCheckMenuItem(student, cannotSitWithD);
+        }
+
+
+        studentImageD.setDisable(false);
+        editMode = true;
+    }
+
 
     public Pane getErrorPane()
     {
@@ -512,10 +697,7 @@ public class MainPage {
     }
 
 
-    public GridPane getSeatingPlan()
-    {
-        return seatingPlan;
-    }
+
 
 
 
@@ -528,43 +710,124 @@ public class MainPage {
 
 
 
-    public void showEditStudentPane(Student student)
-    {
-        addStudentPane.setVisible(true);
-        addStudentPane.setDisable(false);
-
-        nameTF.setText(student.getName());
-        ageTF.setText(student.getAge());
-
-        classMenu.setText(student.getClassLevel());
-        divisionMenu.setText(student.getDivision());
-        sexMenu.setText(student.getSex());
-        seatingMenu.setText(
-                student.getSeatingPreference()
-        );
-        studentImage.setImage(student.getImage());
-    }
 
 
 
 
     public void showStudentDetails(Student student)
     {
-        addStudentPane.setVisible(true);
+        editingStudent = student;
+        detailsPane.setVisible(true);
 
-        nameTF.setText(student.getName());
-        ageTF.setText(student.getAge());
+        nameDTF.setText(student.getName());
+        ageDTF.setText(student.getAge());
 
-        classMenu.setText(student.getClassLevel());
-        divisionMenu.setText(student.getDivision());
-        sexMenu.setText(student.getSex());
-        seatingMenu.setText(
-                student.getSeatingPreference()
-        );
-        studentImage.setImage(student.getImage());
+        classMenuButtonD.setText(student.getClassLevel());
+        divisionMenuBtnD.setText(student.getDivision());
+        sexMenuButtonD.setText(student.getSex());
+        seatingPreferenceD.setText(student.getSeatingPreference());
+        studentImageD.setImage(student.getImage());
 
-        addStudentPane.setDisable(true);
+        if (student.getSex().equalsIgnoreCase("Male"))
+        {
+            detailsPane.setStyle("-fx-background-color: #536DFE;");
+        }
+        else if (student.getSex().equalsIgnoreCase("Female"))
+        {
+            detailsPane.setStyle("-fx-background-color: #E8A0BF;");
+        }
+
+        nameDTF.setEditable(false);
+        ageDTF.setEditable(false);
+
+        for (MenuItem item : classMenuButtonD.getItems())
+        {
+            item.setDisable(true);
+        }
+        for (MenuItem item : divisionMenuBtnD.getItems())
+        {
+            item.setDisable(true);
+        }
+        for (MenuItem item : sexMenuButtonD.getItems())
+        {
+            item.setDisable(true);
+        }
+        for (MenuItem item : seatingPreferenceD.getItems())
+        {
+            item.setDisable(true);
+        }
+
+        // Clear out any leftover checkboxes from a previous
+        // Details/Edit session before rebuilding this one.
+        cannotSitWithD.getItems().clear();
+
+        for (Student s : student.getCannotSitWith())
+        {
+            CheckMenu.getInstance().createCheckMenuItem(s, cannotSitWithD);
+        }
+
+        // Disable them now that they actually exist — this is a
+        // read-only view, so nothing in cannotSitWithD should be
+        // interactive until Edit is clicked.
+        for (MenuItem item : cannotSitWithD.getItems())
+        {
+            item.setDisable(true);
+        }
+
+        studentImageD.setImage(student.getImage());
+        studentImageD.setDisable(true);
     }
+
+
+    @FXML
+    void studentImageDClicked(MouseEvent event)
+    {
+        FileChooser fileChooser = new FileChooser();
+
+        // Set the title shown in the file explorer
+        fileChooser.setTitle("Select Student Image");
+
+        // Only show image files
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter(
+                        "Image Files",
+                        "*.png",
+                        "*.jpg",
+                        "*.jpeg",
+                        "*.gif"
+                )
+        );
+
+
+
+        // Open the file explorer
+        File selectedFile = fileChooser.showOpenDialog(SceneManager.getInstance().getMainStage());
+
+        // If the user selected an image
+        if (selectedFile != null)
+        {
+            // Load the selected image
+            Image image = new Image(
+                    selectedFile.toURI().toString()
+            );
+
+            // Display it in the ImageView
+            studentImageD.setImage(image);
+        }
+    }
+
+
+
+    public VBox getStudentVBox()
+    {
+        return studentVBox;
+    }
+
+    public MenuButton getSeprationMenu()
+    {
+        return seprationMenu;
+    }
+
 
 
 

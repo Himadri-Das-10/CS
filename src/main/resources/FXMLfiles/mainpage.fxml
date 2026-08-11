@@ -8,10 +8,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
@@ -19,17 +16,6 @@
 
 <AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="671.0" prefWidth="1062.0" stylesheets="@../Stylesheets/background2.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.MainPage">
    <children>
-      <GridPane fx:id="seatingPlan" layoutX="312.0" layoutY="49.0" prefHeight="587.0" prefWidth="703.0">
-        <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-        </columnConstraints>
-        <rowConstraints>
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-        </rowConstraints>
-      </GridPane>
       <Pane prefHeight="671.0" prefWidth="250.0" style="-fx-background-color: lightgrey;">
          <children>
             <Text layoutX="14.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Username:" />
@@ -130,6 +116,52 @@
                </font>
             </MenuButton>
             <Button fx:id="finishBtn" layoutX="237.0" layoutY="10.0" mnemonicParsing="false" onAction="#finishBtnClicked" text="Finish" />
+         </children>
+      </Pane>
+      <Pane fx:id="detailsPane" layoutX="240.0" layoutY="112.0" prefHeight="305.0" prefWidth="421.0" style="-fx-background-color: orange;" visible="false">
+         <children>
+            <Text layoutX="14.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Name:" />
+            <Text layoutX="13.0" layoutY="81.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Age:" />
+            <Text layoutX="11.0" layoutY="139.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Class:" />
+            <Text layoutX="15.0" layoutY="180.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Sex:" />
+            <Text layoutX="14.0" layoutY="225.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Seating Preference:" />
+            <Text layoutX="247.0" layoutY="139.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Division:" />
+            <TextField fx:id="nameDTF" layoutX="55.0" layoutY="10.0" prefHeight="27.0" prefWidth="132.0" />
+            <TextField fx:id="ageDTF" layoutX="48.0" layoutY="63.0" prefHeight="17.0" prefWidth="113.0" />
+            <MenuButton fx:id="classMenuButtonD" layoutX="48.0" layoutY="122.0" mnemonicParsing="false" text="MenuButton">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#menuItemSelected" text="Primary School" />
+                <MenuItem mnemonicParsing="false" onAction="#menuItemSelected" text="Middle School" />
+                  <MenuItem mnemonicParsing="false" onAction="#menuItemSelected" text="Secondary School" />
+                  <MenuItem mnemonicParsing="false" onAction="#menuItemSelected" text="Higher Secondary School" />
+              </items>
+            </MenuButton>
+            <MenuButton fx:id="divisionMenuBtnD" layoutX="311.0" layoutY="122.0" mnemonicParsing="false" text="MenuButton">
+               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#menuItemSelected" text="A" />
+                  <MenuItem mnemonicParsing="false" onAction="#menuItemSelected" text="B" />
+                  <MenuItem mnemonicParsing="false" onAction="#menuItemSelected" text="C" />
+                  <MenuItem mnemonicParsing="false" onAction="#menuItemSelected" text="D" />
+               </items>
+            </MenuButton>
+            <MenuButton fx:id="sexMenuButtonD" layoutX="48.0" layoutY="163.0" mnemonicParsing="false" text="MenuButton">
+               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#menuItemSelected" text="Male" />
+                  <MenuItem mnemonicParsing="false" onAction="#menuItemSelected" text="Female" />
+               </items>
+            </MenuButton>
+            <MenuButton fx:id="seatingPreferenceD" layoutX="121.0" layoutY="208.0" mnemonicParsing="false" text="MenuButton">
+               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#menuItemSelected" text="Front" />
+                  <MenuItem mnemonicParsing="false" onAction="#menuItemSelected" text="Back" />
+               </items>
+            </MenuButton>
+          <Button fx:id="okayBtnD" layoutX="328.0" layoutY="268.0" mnemonicParsing="false" onAction="#okayBtnDClicked" text="Okay" />
+            <Button fx:id="editBtn" layoutX="70.0" layoutY="268.0" mnemonicParsing="false" onAction="#editBtnClicked" text="Edit" />
+            <ImageView fx:id="studentImageD" fitHeight="97.0" fitWidth="102.0" layoutX="299.0" layoutY="15.0" onMouseClicked="#studentImageDClicked" pickOnBounds="true" preserveRatio="true" />
+            <Text layoutX="187.0" layoutY="187.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Cannot sit with:" />
+            <MenuButton fx:id="cannotSitWithD" layoutX="279.0" layoutY="171.0" mnemonicParsing="false" text="View" />
+            <Text layoutX="244.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Student Image:" wrappingWidth="49.55078125" />
          </children>
       </Pane>
    </children>

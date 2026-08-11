@@ -54,4 +54,26 @@ public class CheckMenu {
 
         return selectedStudents;
     }
+
+
+    public void removeCheckMenuItem(
+            Student student,
+            MenuButton menuButton)
+    {
+        Platform.runLater(() ->
+        {
+            menuButton.getItems().removeIf(item ->
+                    item instanceof CheckMenuItem checkMenuItem
+                            && checkMenuItem.getUserData() == student
+            );
+
+            for (MenuItem item : menuButton.getItems())
+            {
+                if (item instanceof CheckMenuItem checkMenuItem)
+                {
+                    checkMenuItem.setSelected(false);
+                }
+            }
+        });
+    }
 }
