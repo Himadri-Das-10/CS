@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="535.0" prefWidth="811.0" stylesheets="@../Stylesheets/background.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.Home">
+   <children>
+      <Text fill="WHITE" layoutX="208.0" layoutY="161.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Email" wrappingWidth="90.72418212890625">
+         <font>
+            <Font name="Arial Rounded MT Bold" size="30.0" />
+         </font>
+      </Text>
+      <TextField fx:id="emailTF" layoutX="208.0" layoutY="180.0" prefHeight="26.0" prefWidth="249.0">
+         <font>
+            <Font name="System Bold" size="15.0" />
+         </font>
+      </TextField>
+      <Text fill="WHITE" layoutX="208.0" layoutY="261.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Username" wrappingWidth="153.12420654296875">
+         <font>
+            <Font name="Arial Rounded MT Bold" size="30.0" />
+         </font>
+      </Text>
+      <TextField fx:id="usernameTF" layoutX="208.0" layoutY="275.0" prefHeight="26.0" prefWidth="249.0">
+         <font>
+            <Font name="System Bold" size="15.0" />
+         </font>
+      </TextField>
+      <Pane layoutX="611.0" prefHeight="535.0" prefWidth="200.0" style="-fx-background-color: lightgrey;" stylesheets="@../Stylesheets/background.css" />
+      <Button fx:id="enterBtn" layoutX="299.0" layoutY="346.0" mnemonicParsing="false" onAction="#enterBtnClicked" text="Enter" />
+      <Pane fx:id="paneEmail" layoutX="171.0" layoutY="155.0" prefHeight="118.0" prefWidth="322.0" style="-fx-background-color: white;" visible="false">
+         <children>
+            <Text fill="RED" layoutX="8.0" layoutY="41.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Email not found">
+               <font>
+                  <Font size="25.0" />
+               </font>
+            </Text>
+            <Button fx:id="signupBtn" layoutX="144.0" layoutY="59.0" mnemonicParsing="false" onAction="#signupBtnClicked" text="SignUp Instead" />
+            <Button fx:id="retryBtn1" layoutX="14.0" layoutY="59.0" mnemonicParsing="false" onAction="#retryBtnClicked" text="Retry" />
+         </children>
+      </Pane>
+      <Pane fx:id="paneUsername" layoutX="171.0" layoutY="173.0" prefHeight="118.0" prefWidth="322.0" style="-fx-background-color: white;" visible="false">
+         <children>
+            <Text fill="RED" layoutX="14.0" layoutY="35.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Username mismatch" wrappingWidth="238.8873291015625">
+               <font>
+                  <Font size="25.0" />
+               </font>
+            </Text>
+            <Button fx:id="retryBtn" layoutX="116.0" layoutY="59.0" mnemonicParsing="false" onAction="#retryBtnClicked" text="Retry" />
+         </children>
+      </Pane>
+   </children>
+</AnchorPane>

@@ -1,0 +1,285 @@
+package Validation;
+
+import CODES.CODES;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class Validation
+{
+    private static Validation validation;
+
+    public static final String errorTemplateInvalidCSVdata = "Invalid CSV data. Make sure these are the headers. name,age,class,division,sex,seating_preference. The divisions are from A-D and grades are (Primary School, Middle School, Secondary School, Higher Secondary School). For null values (except name), put 'EMPTY'";
+
+    private Validation(){}
+    public boolean isValidEmail(String email) {
+
+        return email.matches(
+                "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+        );
+    }
+
+
+
+
+
+
+
+
+
+
+    public CODES validateCSV(File csvFile)
+    {
+        String expectedHeader =
+                "name,age,class,division,sex,seating_preference,cannot_sit_with";
+
+        try (BufferedReader reader =
+                     new BufferedReader(new FileReader(csvFile)))
+        {
+            // Check whether the CSV is empty.
+            String header = reader.readLine();
+
+            if (header == null || header.isBlank())
+            {
+                System.out.println(CODES.INVALID);
+                return CODES.INVALID;
+            }
+
+            // Check whether the header is correct.
+            if (!header.strip().equalsIgnoreCase(expectedHeader))
+            {
+                System.out.println(CODES.INVALID);
+                return CODES.INVALID;
+            }
+
+            String line;
+
+            /*
+             * Store all student names.
+             * This allows cannot_sit_with to reference students
+             * regardless of where they appear in the CSV.
+             */
+            List<String> studentNames = new ArrayList<>();
+
+            /*
+             * Store each student's cannot_sit_with values.
+             * The validation is performed after reading all students.
+             */
+            Map<String, List<String>> cannotSitWithMap = new HashMap<>();
+
+            // Validate every student row.
+            while ((line = reader.readLine()) != null)
+            {
+                // Ignore blank lines.
+                if (line.isBlank())
+                {
+                    continue;
+                }
+
+                // -1 preserves empty fields at the end of the row.
+                String[] data = line.split(",", -1);
+
+                // Every row must contain exactly 7 fields.
+                if (data.length != 7)
+                {
+                    System.out.println(CODES.INVALID);
+                    return CODES.INVALID;
+                }
+
+                String name = data[0].strip();
+                String age = data[1].strip();
+                String classLevel = data[2].strip();
+                String division = data[3].strip();
+                String sex = data[4].strip();
+                String seatingPreference = data[5].strip();
+                String cannotSitWithData = data[6].strip();
+
+                /*
+                 * NAME
+                 */
+                if (name.isEmpty())
+                {
+                    System.out.println(CODES.INVALID);
+                    return CODES.INVALID;
+                }
+
+                // Check for duplicate student names.
+                if (studentNames.contains(name))
+                {
+                    System.out.println(CODES.INVALID);
+                    return CODES.INVALID;
+                }
+
+                studentNames.add(name);
+
+                /*
+                 * AGE
+                 */
+                if (!age.equals(String.valueOf(CODES.EMPTY)))
+                {
+                    try
+                    {
+                        Integer.parseInt(age);
+                    }
+                    catch (NumberFormatException e)
+                    {
+                        System.out.println(CODES.INVALID);
+                        return CODES.INVALID;
+                    }
+                }
+
+                /*
+                 * CLASS
+                 */
+                if (!classLevel.equals("Primary School") &&
+                        !classLevel.equals("Middle School") &&
+                        !classLevel.equals("Secondary School") &&
+                        !classLevel.equals("Higher Secondary School") &&
+                        !classLevel.equals(String.valueOf(CODES.EMPTY)))
+                {
+                    System.out.println(CODES.INVALID);
+                    return CODES.INVALID;
+                }
+
+                /*
+                 * DIVISION
+                 */
+                if (!division.equalsIgnoreCase("A") &&
+                        !division.equalsIgnoreCase("B") &&
+                        !division.equalsIgnoreCase("C") &&
+                        !division.equalsIgnoreCase("D") &&
+                        !division.equalsIgnoreCase(
+                                String.valueOf(CODES.EMPTY)))
+                {
+                    System.out.println(CODES.INVALID);
+                    return CODES.INVALID;
+                }
+
+                /*
+                 * SEX
+                 */
+                if (!sex.equalsIgnoreCase("Male") &&
+                        !sex.equalsIgnoreCase("Female") &&
+                        !sex.equalsIgnoreCase(
+                                String.valueOf(CODES.EMPTY)))
+                {
+                    System.out.println(CODES.INVALID);
+                    return CODES.INVALID;
+                }
+
+                /*
+                 * SEATING PREFERENCE
+                 */
+                if (!seatingPreference.equalsIgnoreCase("Front") &&
+                        !seatingPreference.equalsIgnoreCase("Back") &&
+                        !seatingPreference.equalsIgnoreCase(
+                                String.valueOf(CODES.EMPTY)))
+                {
+                    System.out.println(CODES.INVALID);
+                    return CODES.INVALID;
+                }
+
+                /*
+                 * CANNOT SIT WITH
+                 *
+                 * Multiple students are separated using ;
+                 *
+                 * Example:
+                 * Rahul;Arjun;Sarah
+                 */
+                List<String> cannotSitWith = new ArrayList<>();
+
+                if (!cannotSitWithData.isEmpty())
+                {
+                    String[] restrictedStudents =
+                            cannotSitWithData.split(";", -1);
+
+                    for (String restrictedStudent :
+                            restrictedStudents)
+                    {
+                        restrictedStudent = restrictedStudent.strip();
+
+                        // Empty name inside the list is invalid.
+                        if (restrictedStudent.isEmpty())
+                        {
+                            System.out.println(CODES.INVALID);
+                            return CODES.INVALID;
+                        }
+
+                        // Student cannot be restricted from themselves.
+                        if (restrictedStudent.equalsIgnoreCase(name))
+                        {
+                            System.out.println(CODES.INVALID);
+                            return CODES.INVALID;
+                        }
+
+                        // Duplicate restricted student.
+                        String finalRestrictedStudent = restrictedStudent;
+                        if (cannotSitWith.stream()
+                                .anyMatch(s ->
+                                        s.equalsIgnoreCase(
+                                                finalRestrictedStudent)))
+                        {
+                            System.out.println(CODES.INVALID);
+                            return CODES.INVALID;
+                        }
+
+                        cannotSitWith.add(restrictedStudent);
+                    }
+                }
+
+                cannotSitWithMap.put(name, cannotSitWith);
+            }
+
+            /*
+             * CANNOT SIT WITH — CHECK STUDENT NAMES
+             *
+             * Now that every student has been read, check that
+             * every restricted student actually exists in the CSV.
+             */
+            for (Map.Entry<String, List<String>> entry :
+                    cannotSitWithMap.entrySet())
+            {
+                for (String restrictedStudent : entry.getValue())
+                {
+                    boolean exists = studentNames.stream()
+                            .anyMatch(name ->
+                                    name.equalsIgnoreCase(
+                                            restrictedStudent));
+
+                    if (!exists)
+                    {
+                        System.out.println(CODES.INVALID);
+                        return CODES.INVALID;
+                    }
+                }
+            }
+
+            // CSV passed every validation.
+            return CODES.SUCCESS;
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+
+            return CODES.INVALID;
+        }
+    }
+
+
+
+
+    //Getters
+    public static Validation getInstance() {
+        if (validation == null) {
+            validation = new Validation();
+        }
+        return validation;
+    }
+}
