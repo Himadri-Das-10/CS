@@ -1,11 +1,9 @@
 package UI_Element;
 
-import Controller.Home;
 import Controller.MainPage;
-import Data.Student;
+import Features.Student;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;

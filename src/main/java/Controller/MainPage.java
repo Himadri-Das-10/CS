@@ -2,7 +2,7 @@ package Controller;
 
 import Backend.Backend;
 
-import Data.*;
+import Features.*;
 
 import Offload.SeprateTask;
 import SceneManager.SceneManager;
@@ -25,13 +25,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import CODES.CODES;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainPage {
 
@@ -58,6 +57,9 @@ public class MainPage {
 
     @FXML
     private MenuButton classMenu;
+
+    @FXML
+    private GridPane seatGrid;
 
     @FXML
     private MenuButton classMenuButtonD;
@@ -200,7 +202,7 @@ public class MainPage {
     @FXML
     void guestNumTFclicked(MouseEvent event)
     {
-        usernameTF.setEditable(!usernameTF.isEditable());
+        guestNumTF.setEditable(!guestNumTF.isEditable());
     }
 
     @FXML
@@ -705,7 +707,37 @@ public class MainPage {
     @FXML
     void allotStudentsBtnClicked(ActionEvent event)
     {
-        AllotStudents.getInstance().generateSeating(Student.students, Integer.parseInt(guestNumTF.getText()));
+        CODES cd = Validation.getInstance().validateIntegerField(errorPane, guestNumTF.getText().strip(), errorText, "SEATS", guestNumLabel.getText().strip());
+        if(!cd.toString().equals("INVALID"))
+        {
+            CODES rtype;
+            if(settingMenu.getText().equals("Classroom"))
+                rtype = CODES.CLASSROOM;
+            else if(settingMenu.getText().equals("Auditorium"))
+                rtype = CODES.AUDITORIUM;
+            else if(settingMenu.getText().equals("Computer Lab"))
+                rtype = CODES.COMPUTER_LAB;
+            else
+                rtype = CODES.CLASSROOM;
+
+
+
+            AllotStudents.getInstance().renderSeating(
+                    AllotStudents.getInstance().generateSeating(Student.students,
+                            Integer.parseInt(guestNumTF.getText().strip()), rtype)
+                    , seatGrid);
+        }
+        else
+        {
+            // No valid arrangement could be found — every backtracking
+            // path failed the cannotSitWith constraints.
+
+            Platform.runLater(()->{errorText.setText(Validation.errorTemplateInvalidSeats);
+                errorPane.setVisible(true);});
+
+
+            System.out.println("Could not generate a valid seating arrangement.");
+        }
     }
 
 
@@ -826,6 +858,45 @@ public class MainPage {
     public MenuButton getSeprationMenu()
     {
         return seprationMenu;
+    }
+
+
+    @FXML
+    void exportToPDFBtnClicked(ActionEvent event)
+    {
+
+
+            SeprateTask.getInstance().offload(()->{
+
+                Platform.runLater(()->{
+                    Map<String, String> data = new HashMap<>();
+                    data.put(PdfExport.KEY_NAME, usernameTF.getText());
+
+                    data.put(PdfExport.KEY_SETTING, settingMenu.getText().equals("Setting")?"Classroom":settingMenu.getText().strip());
+                    data.put(PdfExport.KEY_TOTAL_STUDENTS, String.valueOf(Student.students.size()));
+                    data.put(PdfExport.KEY_TOTAL_SEATS, guestNumTF.getText());
+
+
+                    FileChooser fileChooser = new FileChooser();
+                    fileChooser.setTitle("Save Seating Report");
+                    fileChooser.getExtensionFilters().add(
+                            new FileChooser.ExtensionFilter("PDF Files", "*.pdf")
+                    );
+
+                    File saveFile = fileChooser.showSaveDialog(SceneManager.getInstance().getMainStage());
+
+                    if (saveFile != null) {
+                        PdfExport.getInstance().convertIntoPdf(
+                                data,
+                                studentVBox,
+                                seatGrid,   // your GridPane field, once added
+                                saveFile.getAbsolutePath()
+                        );
+
+                    }
+                });
+
+            });
     }
 
 

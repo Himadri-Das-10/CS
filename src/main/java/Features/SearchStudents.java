@@ -1,11 +1,11 @@
-package Data;
+package Features;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static Data.Student.students;
+import static Features.Student.students;
 
 public class SearchStudents
 {

@@ -1,6 +1,9 @@
 package Validation;
 
 import CODES.CODES;
+import javafx.application.Platform;
+import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,6 +19,7 @@ public class Validation
     private static Validation validation;
 
     public static final String errorTemplateInvalidCSVdata = "Invalid CSV data. Make sure these are the headers. name,age,class,division,sex,seating_preference. The divisions are from A-D and grades are (Primary School, Middle School, Secondary School, Higher Secondary School). For null values (except name), put 'EMPTY'";
+    public static final String errorTemplateInvalidSeats = "Please add a whole number of seats and make sure the number of seats is greater than or equal to the number of seats";
 
     private Validation(){}
     public boolean isValidEmail(String email) {
@@ -272,6 +276,35 @@ public class Validation
         }
     }
 
+
+
+
+
+    public CODES validateIntegerField(Pane errorPane, String value1, Text errorText, String typeOfErrorToLook, String value2)
+    {
+        try{
+            int num1 = Integer.parseInt(value1);
+            int num2 = Integer.parseInt(value2);
+
+            switch (typeOfErrorToLook){
+                case "SEATS":
+                    if(value1.isEmpty() || value2.isEmpty())
+                        return CODES.INVALID;
+
+                    if(num1 < num2)
+                        return CODES.INVALID;
+
+
+            }
+            return CODES.SUCCESS;
+        }
+        catch (NumberFormatException e)
+        {
+
+            return CODES.INVALID;
+        }
+
+    }
 
 
 

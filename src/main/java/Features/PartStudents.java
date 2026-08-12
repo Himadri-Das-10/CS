@@ -1,13 +1,11 @@
-package Data;
+package Features;
 import UI_Element.Cards;
-import javafx.scene.Parent;
 import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
-import static Data.Student.students;
+import static Features.Student.students;
 
 public class PartStudents
 {

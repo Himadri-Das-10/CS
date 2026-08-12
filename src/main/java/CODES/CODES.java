@@ -8,5 +8,8 @@ public enum CODES {
     OTPEXP,
     OTPINV,
     EMPTY,
-    INVALID
+    INVALID,
+    CLASSROOM,
+    AUDITORIUM,
+    COMPUTER_LAB
 }

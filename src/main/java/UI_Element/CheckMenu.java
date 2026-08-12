@@ -1,6 +1,6 @@
 package UI_Element;
 
-import Data.Student;
+import Features.Student;
 import javafx.application.Platform;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.CheckMenuItem;

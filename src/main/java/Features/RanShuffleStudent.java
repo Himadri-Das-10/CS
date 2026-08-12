@@ -1,10 +1,10 @@
-package Data;
+package Features;
 
 import UI_Element.Cards;
 import javafx.scene.layout.VBox;
 
 import java.util.Random;
-import static Data.Student.students;
+import static Features.Student.students;
 
 public class RanShuffleStudent
 {

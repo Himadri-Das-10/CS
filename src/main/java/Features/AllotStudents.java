@@ -1,8 +1,13 @@
-package Data;
+package Features;
 
-
-import Data.Student;
-
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.control.Label;
+import javafx.geometry.Pos;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.ColumnConstraints;
+import CODES.CODES;
 import java.util.*;
 
 public class AllotStudents {
@@ -22,17 +27,46 @@ public class AllotStudents {
     private int rows;
     private int cols;
 
+    // Remembered from the most recent generateSeating call, so
+    // renderSeating knows whether to draw aisle gaps without the
+    // caller having to pass the room type twice.
+    private CODES roomType;
+
+    // Loaded once and reused for every seat, rather than
+    // re-reading the file from disk for each cell.
+    private static final Image SEAT_ICON = loadSeatIcon();
+
+    private static Image loadSeatIcon() {
+        try
+        {
+            return new Image(
+                    AllotStudents.class.getResourceAsStream("/Images/studentSeat.png")
+            );
+        }
+        catch (Exception e)
+        {
+            System.out.println("Could not load seat icon image.");
+            return null;
+        }
+    }
+
 
     // ---------------------------------------------------------
     // 1. Public entry point
     // ---------------------------------------------------------
 
     /**
-     * Generates a full seating arrangement for the given students.
+     * Generates a full seating arrangement for the given students,
+     * for the given room layout. Front is always the leftmost
+     * column; back is always the rightmost column, regardless of
+     * room type.
+     *
      * Returns the list of Seats with students allocated, or null
      * if no valid arrangement exists.
      */
-    public List<Seat> generateSeating(List<Student> students, int numberOfSeats) {
+    public List<Seat> generateSeating(List<Student> students, int numberOfSeats, CODES roomType) {
+
+        this.roomType = roomType;
 
         calculateDimensions(numberOfSeats);
 
@@ -53,9 +87,20 @@ public class AllotStudents {
     private void calculateDimensions(int numberOfSeats) {
 
         int cols = (int) Math.ceil(Math.sqrt(numberOfSeats));
-        int rows = (int) Math.ceil((double) numberOfSeats / cols);
+        int seatRows = (int) Math.ceil((double) numberOfSeats / cols);
 
-        this.rows = rows;
+        if (roomType == CODES.COMPUTER_LAB && seatRows > 0)
+        {
+            // Interleave an aisle row between every pair of seat
+            // rows, e.g. 4 seat rows -> seat, aisle, seat, aisle,
+            // seat, aisle, seat (7 total grid rows).
+            this.rows = (seatRows * 2) - 1;
+        }
+        else
+        {
+            this.rows = seatRows;
+        }
+
         this.cols = cols;
     }
 
@@ -69,6 +114,13 @@ public class AllotStudents {
         List<Seat> seats = new ArrayList<>();
 
         for (int r = 0; r < rows; r++) {
+
+            // In a Computer Lab, odd-indexed rows are aisles —
+            // no seats are placed there at all.
+            if (roomType == CODES.COMPUTER_LAB && r % 2 != 0) {
+                continue;
+            }
+
             for (int c = 0; c < cols; c++) {
                 seats.add(new Seat(r, c));
             }
@@ -205,12 +257,19 @@ public class AllotStudents {
 
         // Adjacent = within one row and one column in any direction,
         // covering horizontal, vertical, and diagonal neighbours.
+        // Note: in a Computer Lab, seat rows are separated by an
+        // aisle row (see createSeats), so two seats directly across
+        // an aisle naturally have rowDiff = 2 and are NOT adjacent —
+        // no special-casing needed here.
         return rowDiff <= 1 && colDiff <= 1;
     }
 
 
     // ---------------------------------------------------------
     // 7. Preference scoring (soft constraint: front/back)
+    //
+    // Front is always the leftmost column (col 0); back is always
+    // the rightmost column (cols - 1) — for every room type.
     // ---------------------------------------------------------
 
     private List<Seat> highestScoringSeats(Student student, List<Seat> validSeats) {
@@ -244,15 +303,16 @@ public class AllotStudents {
 
         preference = preference.strip().toLowerCase();
 
-        // Higher score = closer to the preferred edge of the grid.
-        // Row 0 is the front row; row (rows - 1) is the back row.
+        // Higher score = closer to the preferred side of the grid.
+        // Col 0 is the front (leftmost); col (cols - 1) is the back
+        // (rightmost) — this is fixed for every room type.
         switch (preference) {
 
             case "front":
-                return (rows - 1) - seat.getRow();
+                return (cols - 1) - seat.getCol();
 
             case "back":
-                return seat.getRow();
+                return seat.getCol();
 
             default:
                 // No preference / unrecognised value: neutral score
@@ -272,6 +332,30 @@ public class AllotStudents {
         gridPane.getRowConstraints().clear();
         gridPane.getColumnConstraints().clear();
 
+        // Give every row/column a fixed size so aisle rows (which
+        // have no seat nodes in them) still render as a visible gap
+        // instead of collapsing to zero height.
+        for (int r = 0; r < rows; r++) {
+
+            boolean isAisleRow =
+                    roomType == CODES.COMPUTER_LAB && r % 2 != 0;
+
+            RowConstraints rowConstraints = new RowConstraints();
+            rowConstraints.setMinHeight(isAisleRow ? 30 : 90);
+            rowConstraints.setPrefHeight(isAisleRow ? 30 : 90);
+
+            gridPane.getRowConstraints().add(rowConstraints);
+        }
+
+        for (int c = 0; c < cols; c++) {
+
+            ColumnConstraints colConstraints = new ColumnConstraints();
+            colConstraints.setMinWidth(90);
+            colConstraints.setPrefWidth(90);
+
+            gridPane.getColumnConstraints().add(colConstraints);
+        }
+
         for (Seat seat : seats) {
 
             javafx.scene.layout.StackPane seatPane = createSeatNode(seat);
@@ -290,11 +374,25 @@ public class AllotStudents {
                         + "-fx-background-color: " + seatColour(seat) + ";"
         );
 
+        // Seat icon, shown in every cell whether occupied or not.
+        if (SEAT_ICON != null)
+        {
+            ImageView iconView = new ImageView(SEAT_ICON);
+            iconView.setFitWidth(48);
+            iconView.setFitHeight(48);
+            iconView.setPreserveRatio(true);
+
+            pane.getChildren().add(iconView);
+        }
+
         Student student = seat.getStudent();
 
-        String label = (student != null) ? student.getName() : "";
+        String labelText = (student != null) ? student.getName() : "";
 
-        pane.getChildren().add(new javafx.scene.control.Label(label));
+        Label nameLabel = new Label(labelText);
+        StackPane.setAlignment(nameLabel, Pos.BOTTOM_CENTER);
+
+        pane.getChildren().add(nameLabel);
 
         return pane;
     }
@@ -325,10 +423,11 @@ public class AllotStudents {
 }
 
 
-
-
 /**
  * Represents a single seat in the classroom grid.
+ * Package-private: only AllotStudents.java can declare a *public*
+ * top-level class matching the filename, so Seat stays package-private
+ * and lives in the same file as before.
  */
 class Seat {
 
