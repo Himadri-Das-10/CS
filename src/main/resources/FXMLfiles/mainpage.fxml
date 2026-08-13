@@ -21,7 +21,7 @@
 <AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="671.0" prefWidth="1062.0" stylesheets="@../Stylesheets/background2.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.MainPage">
    <children>
       <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#65a0d7" height="306.0" layoutX="250.0" layoutY="180.0" stroke="BLACK" strokeType="INSIDE" width="44.0" />
-      <Pane prefHeight="671.0" prefWidth="250.0" style="-fx-background-color: lightgrey;">
+      <Pane fx:id="mainPane" prefHeight="671.0" prefWidth="250.0" style="-fx-background-color: lightgrey;">
          <children>
             <Text layoutX="14.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Username:" />
             <TextField fx:id="usernameTF" focusTraversable="false" layoutX="77.0" layoutY="10.0" onKeyPressed="#usernameTFpressed" onMouseClicked="#usernameTFclicked" />
@@ -182,6 +182,17 @@
             <Text layoutX="187.0" layoutY="187.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Cannot sit with:" />
             <MenuButton fx:id="cannotSitWithD" layoutX="279.0" layoutY="171.0" mnemonicParsing="false" text="View" />
             <Text layoutX="244.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Student Image:" wrappingWidth="49.55078125" />
+         </children>
+      </Pane>
+      <Pane fx:id="restorePane" layoutX="267.0" layoutY="180.0" prefHeight="358.0" prefWidth="676.0" style="-fx-background-color: green;" visible="false">
+         <children>
+            <Text fill="YELLOW" layoutX="78.0" layoutY="42.0" strokeType="OUTSIDE" strokeWidth="0.0" text="DATA FROM PREVIOUS SESSION IS FOUND. DO YOU WANT TO RESTORE THE ORIGINAL DATA?" wrappingWidth="519.5023193359375">
+               <font>
+                  <Font name="Arial Rounded MT Bold" size="30.0" />
+               </font>
+            </Text>
+            <Button layoutX="107.0" layoutY="236.0" mnemonicParsing="false" onAction="#restoreOkayBtnClicked" prefHeight="74.0" prefWidth="231.0" text="OK" />
+            <Button layoutX="378.0" layoutY="236.0" mnemonicParsing="false" onAction="#restoreSkipBtnClicked" prefHeight="74.0" prefWidth="231.0" text="SKIP" />
          </children>
       </Pane>
    </children>

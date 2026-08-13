@@ -24,10 +24,7 @@ public class Main extends Application
         stage.show();
 
 
-        //Todo
-        /*
-        -RIGHT CLICK EDITABLE DETAILS
-         */
+
 
     }
 }

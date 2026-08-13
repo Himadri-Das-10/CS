@@ -448,7 +448,7 @@ public class Cards
 
         ageText.setText(
                 "Age: " +
-                        (student.getAge().equals(empty) ? "Unspecified" : student.getAge())
+                        (student.getAge().equals(empty) || student.getAge().equals("-1") ? "Unspecified" : student.getAge())
         );
 
         classText.setText(
@@ -481,6 +481,7 @@ public class Cards
         // Set the student's image if one was selected.
         if (student.getImage() != null)
         {
+
             studentImage.setImage(student.getImage());
         }
 

@@ -2,10 +2,17 @@ package Backend;
 
 import CODES.CODES;
 import Controller.Home;
+import Controller.MainPage;
 import Features.Student;
 import Offload.SeprateTask;
+import UI_Element.Cards;
+import javafx.scene.image.Image;
+import javafx.scene.layout.VBox;
 
+import java.io.File;
+import java.net.URI;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -437,6 +444,217 @@ public class Backend {
             }
         });
     }
+
+
+
+
+
+
+
+
+    public boolean isTherePreviousSession(int user_id) {
+        String sql = """
+                SELECT COUNT(*) FROM students
+                WHERE  user_id = ?
+                """;
+
+        try (Connection connection = Database.getConnection())
+        {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, user_id);
+            ResultSet resultSet = statement.executeQuery();
+
+            if(resultSet.next())
+            {
+                int count = resultSet.getInt(1);
+                if(count > 0)
+                {
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+        catch(SQLException e)
+        {
+            System.out.println("Could not check if there is a previous session");
+            e.printStackTrace();
+            return false;
+
+        }
+    }
+
+    public void loadPreviousSession(int user_id, VBox studentVBox)
+    {
+        String sql = """
+            SELECT student_id, name, age, class_level, division,
+                   sex, seating_preference, img_path
+            FROM students
+            WHERE user_id = ?
+            ORDER BY student_id
+            """;
+
+        List<Student> loadedStudents = new ArrayList<>();
+
+        try (Connection connection = Database.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql))
+        {
+            statement.setInt(1, user_id);
+
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next())
+            {
+                String imagePath = resultSet.getString("img_path");
+
+                Image image = null;
+                System.out.println(imagePath);
+
+                if (imagePath != null &&
+                        !imagePath.equalsIgnoreCase("EMPTY") &&
+                        !imagePath.isBlank())
+                {
+                    try
+                    {
+                        URI imageURI = URI.create(imagePath);
+                        File imageFile = new File(imageURI);
+
+                        if (imageFile.exists())
+                        {
+                            image = new Image(imageURI.toString());
+                        }
+                    }
+                    catch (IllegalArgumentException e)
+                    {
+                        System.out.println("Invalid image path: " + imagePath);
+                    }
+                }
+
+                Student student = new Student(
+                        resultSet.getString("name"),
+                        String.valueOf(resultSet.getInt("age")).equals("-1")?"EMPTY":String.valueOf(resultSet.getInt("age")),
+                        resultSet.getString("class_level"),
+                        resultSet.getString("division"),
+                        resultSet.getString("sex"),
+                        resultSet.getString("seating_preference"),
+                        image,
+                        new ArrayList<>()
+                );
+
+                // Restore the database ID.
+                student.setDbID(
+                        resultSet.getInt("student_id")
+                );
+
+                loadedStudents.add(student);
+            }
+
+        }
+        catch (SQLException e)
+        {
+            System.out.println("Could not load previous session");
+            e.printStackTrace();
+            return;
+        }
+
+
+        /*
+         * ============================================================
+         * LOAD CANNOT-SIT-WITH RELATIONSHIPS
+         * ============================================================
+         */
+
+        String relationshipSQL = """
+            SELECT student_id, cannot_sit_with_student_id
+            FROM cannot_sit_with
+            WHERE student_id IN (
+                SELECT student_id
+                FROM students
+                WHERE user_id = ?
+            )
+            """;
+
+        try (Connection connection = Database.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(relationshipSQL))
+        {
+            statement.setInt(1, user_id);
+
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next())
+            {
+                int mainStudentID =
+                        resultSet.getInt("student_id");
+
+                int cannotSitWithID =
+                        resultSet.getInt("cannot_sit_with_student_id");
+
+                Student mainStudent = null;
+                Student cannotSitWithStudent = null;
+
+                for (Student student : loadedStudents)
+                {
+                    if (student.getDbID() == mainStudentID)
+                    {
+                        mainStudent = student;
+                    }
+
+                    if (student.getDbID() == cannotSitWithID)
+                    {
+                        cannotSitWithStudent = student;
+                    }
+                }
+
+                if (mainStudent != null &&
+                        cannotSitWithStudent != null)
+                {
+                    mainStudent.getCannotSitWith()
+                            .add(cannotSitWithStudent);
+                }
+            }
+
+        }
+        catch (SQLException e)
+        {
+            System.out.println(
+                    "Could not load cannot-sit-with relationships"
+            );
+
+            e.printStackTrace();
+        }
+
+
+        /*
+         * ============================================================
+         * CREATE THE CARDS
+         * ============================================================
+         */
+
+        for (Student student : loadedStudents)
+        {
+            Cards.getInstance().createCard(
+                    student,
+                    studentVBox,
+                    false
+            );
+        }
+
+        System.out.println(
+                "Loaded " + loadedStudents.size() +
+                        " students from previous session."
+        );
+
+        MainPage.getInstance().getGuestNumLabel().setText(String.valueOf(loadedStudents.size()));
+    }
+
+
+
 
 
 

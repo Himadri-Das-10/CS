@@ -68,6 +68,12 @@ public class MainPage {
     private Pane detailsPane;
 
     @FXML
+    private Pane restorePane;
+
+    @FXML
+    private Pane mainPane;
+
+    @FXML
     private MenuButton divisionMenu;
 
     @FXML
@@ -193,7 +199,16 @@ public class MainPage {
         });
 
 
-
+        if(Backend.getInstance().isTherePreviousSession(
+                Integer.parseInt(Backend.getInstance().getUserId(
+                        Home.getInstance().getEmail()
+                )
+        )
+        ))
+        {
+            restorePane.setVisible(true);
+            mainPane.setVisible(true);
+        }
 
 
 
@@ -920,6 +935,28 @@ public class MainPage {
             });
     }
 
+
+
+    @FXML
+    void restoreOkayBtnClicked(ActionEvent event)
+    {
+        mainPane.setDisable(false);
+        Backend.getInstance().loadPreviousSession(
+                Integer.parseInt(Backend.getInstance().getUserId(Home.getInstance().getEmail())),
+                studentVBox
+        );
+        restorePane.setVisible(false);
+
+    }
+
+
+
+    @FXML
+    void restoreSkipBtnClicked(ActionEvent event)
+    {
+        restorePane.setVisible(false);
+        mainPane.setDisable(false);
+    }
 
 
 
