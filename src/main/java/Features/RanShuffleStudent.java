@@ -31,7 +31,7 @@ public class RanShuffleStudent
             }
 
             for(Student student : students){
-                Cards.getInstance().createCard(student, container);
+                Cards.getInstance().createCard(student, container, false);
             }
 
     }

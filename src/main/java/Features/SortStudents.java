@@ -32,7 +32,7 @@ public class SortStudents
         copy = mergeSort(copy);
 
         for(Student student : copy){
-            Cards.getInstance().createCard(student, container);
+            Cards.getInstance().createCard(student, container, false);
 
         }
 

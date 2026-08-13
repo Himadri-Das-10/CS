@@ -25,7 +25,7 @@ public class Validation
     public boolean isValidEmail(String email) {
 
         return email.matches(
-                "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+                "^[A-Za-z0-9_.]+@[A-Za-z]+\\.[A-Za-z]{2,}$"
         );
     }
 
@@ -41,24 +41,21 @@ public class Validation
     public CODES validateCSV(File csvFile)
     {
         String expectedHeader =
-                "name,age,class,division,sex,seating_preference,cannot_sit_with";
+                "name,age,class,division,sex,seating_preference,cannot_sit_with,image_path";
 
         try (BufferedReader reader =
-                     new BufferedReader(new FileReader(csvFile)))
-        {
+                     new BufferedReader(new FileReader(csvFile))) {
             // Check whether the CSV is empty.
             String header = reader.readLine();
 
-            if (header == null || header.isBlank())
-            {
-                System.out.println(CODES.INVALID);
+            if (header == null || header.isBlank()) {
+                System.out.println(CODES.INVALID + "CSV empty");
                 return CODES.INVALID;
             }
 
             // Check whether the header is correct.
-            if (!header.strip().equalsIgnoreCase(expectedHeader))
-            {
-                System.out.println(CODES.INVALID);
+            if (!header.strip().equalsIgnoreCase(expectedHeader)) {
+                System.out.println(CODES.INVALID + "Header incorrect");
                 return CODES.INVALID;
             }
 
@@ -78,21 +75,19 @@ public class Validation
             Map<String, List<String>> cannotSitWithMap = new HashMap<>();
 
             // Validate every student row.
-            while ((line = reader.readLine()) != null)
-            {
+            String imgPath = null;
+            while ((line = reader.readLine()) != null) {
                 // Ignore blank lines.
-                if (line.isBlank())
-                {
+                if (line.isBlank()) {
                     continue;
                 }
 
                 // -1 preserves empty fields at the end of the row.
                 String[] data = line.split(",", -1);
 
-                // Every row must contain exactly 7 fields.
-                if (data.length != 7)
-                {
-                    System.out.println(CODES.INVALID);
+                // Every row must contain exactly 8 fields.
+                if (data.length != 8) {
+                    System.out.println(CODES.INVALID + "Length");
                     return CODES.INVALID;
                 }
 
@@ -103,37 +98,33 @@ public class Validation
                 String sex = data[4].strip();
                 String seatingPreference = data[5].strip();
                 String cannotSitWithData = data[6].strip();
+                imgPath = data[7].strip();
 
                 /*
                  * NAME
                  */
-                if (name.isEmpty())
-                {
-                    System.out.println(CODES.INVALID);
+                if (name.isEmpty()) {
+                    System.out.println(CODES.INVALID + "Name is empty");
                     return CODES.INVALID;
                 }
 
-                // Check for duplicate student names.
-                if (studentNames.contains(name))
-                {
-                    System.out.println(CODES.INVALID);
-                    return CODES.INVALID;
-                }
+//                // Check for duplicate student names.
+//                if (studentNames.contains(name))
+//                {
+//                    System.out.println(CODES.INVALID);
+//                    return CODES.INVALID;
+//                }
 
                 studentNames.add(name);
 
                 /*
                  * AGE
                  */
-                if (!age.equals(String.valueOf(CODES.EMPTY)))
-                {
-                    try
-                    {
+                if (!age.equals(String.valueOf(CODES.EMPTY))) {
+                    try {
                         Integer.parseInt(age);
-                    }
-                    catch (NumberFormatException e)
-                    {
-                        System.out.println(CODES.INVALID);
+                    } catch (NumberFormatException e) {
+                        System.out.println(CODES.INVALID + "Age isnt a number");
                         return CODES.INVALID;
                     }
                 }
@@ -145,9 +136,8 @@ public class Validation
                         !classLevel.equals("Middle School") &&
                         !classLevel.equals("Secondary School") &&
                         !classLevel.equals("Higher Secondary School") &&
-                        !classLevel.equals(String.valueOf(CODES.EMPTY)))
-                {
-                    System.out.println(CODES.INVALID);
+                        !classLevel.equals(String.valueOf(CODES.EMPTY))) {
+                    System.out.println(CODES.INVALID + "Problem with class");
                     return CODES.INVALID;
                 }
 
@@ -159,9 +149,8 @@ public class Validation
                         !division.equalsIgnoreCase("C") &&
                         !division.equalsIgnoreCase("D") &&
                         !division.equalsIgnoreCase(
-                                String.valueOf(CODES.EMPTY)))
-                {
-                    System.out.println(CODES.INVALID);
+                                String.valueOf(CODES.EMPTY))) {
+                    System.out.println(CODES.INVALID + "Problem with division");
                     return CODES.INVALID;
                 }
 
@@ -171,9 +160,8 @@ public class Validation
                 if (!sex.equalsIgnoreCase("Male") &&
                         !sex.equalsIgnoreCase("Female") &&
                         !sex.equalsIgnoreCase(
-                                String.valueOf(CODES.EMPTY)))
-                {
-                    System.out.println(CODES.INVALID);
+                                String.valueOf(CODES.EMPTY))) {
+                    System.out.println(CODES.INVALID + "Problem with sex");
                     return CODES.INVALID;
                 }
 
@@ -183,9 +171,8 @@ public class Validation
                 if (!seatingPreference.equalsIgnoreCase("Front") &&
                         !seatingPreference.equalsIgnoreCase("Back") &&
                         !seatingPreference.equalsIgnoreCase(
-                                String.valueOf(CODES.EMPTY)))
-                {
-                    System.out.println(CODES.INVALID);
+                                String.valueOf(CODES.EMPTY))) {
+                    System.out.println(CODES.INVALID + "Problem with seating pref");
                     return CODES.INVALID;
                 }
 
@@ -199,27 +186,24 @@ public class Validation
                  */
                 List<String> cannotSitWith = new ArrayList<>();
 
-                if (!cannotSitWithData.isEmpty())
-                {
+                if (!cannotSitWithData.isEmpty() &&
+                        !cannotSitWithData.equalsIgnoreCase(String.valueOf(CODES.EMPTY))) {
                     String[] restrictedStudents =
                             cannotSitWithData.split(";", -1);
 
                     for (String restrictedStudent :
-                            restrictedStudents)
-                    {
+                            restrictedStudents) {
                         restrictedStudent = restrictedStudent.strip();
 
                         // Empty name inside the list is invalid.
-                        if (restrictedStudent.isEmpty())
-                        {
-                            System.out.println(CODES.INVALID);
+                        if (restrictedStudent.isEmpty()) {
+                            System.out.println(CODES.INVALID + "Problem with cannot sit | empty name in list");
                             return CODES.INVALID;
                         }
 
                         // Student cannot be restricted from themselves.
-                        if (restrictedStudent.equalsIgnoreCase(name))
-                        {
-                            System.out.println(CODES.INVALID);
+                        if (restrictedStudent.equalsIgnoreCase(name)) {
+                            System.out.println(CODES.INVALID+ "Problem with seating pref | student cannot sit with himself");
                             return CODES.INVALID;
                         }
 
@@ -228,9 +212,8 @@ public class Validation
                         if (cannotSitWith.stream()
                                 .anyMatch(s ->
                                         s.equalsIgnoreCase(
-                                                finalRestrictedStudent)))
-                        {
-                            System.out.println(CODES.INVALID);
+                                                finalRestrictedStudent))) {
+                            System.out.println(CODES.INVALID + "Problem with seating pref | Duplicate restricted student. ");
                             return CODES.INVALID;
                         }
 
@@ -248,25 +231,26 @@ public class Validation
              * every restricted student actually exists in the CSV.
              */
             for (Map.Entry<String, List<String>> entry :
-                    cannotSitWithMap.entrySet())
-            {
-                for (String restrictedStudent : entry.getValue())
-                {
+                    cannotSitWithMap.entrySet()) {
+                for (String restrictedStudent : entry.getValue()) {
                     boolean exists = studentNames.stream()
                             .anyMatch(name ->
                                     name.equalsIgnoreCase(
                                             restrictedStudent));
 
-                    if (!exists)
-                    {
-                        System.out.println(CODES.INVALID);
+                    if (!exists) {
+                        System.out.println(CODES.INVALID + "cannot sit with student does not exist in CSV");
                         return CODES.INVALID;
                     }
                 }
+
             }
 
-            // CSV passed every validation.
-            return CODES.SUCCESS;
+
+
+
+                // CSV passed every validation.
+                return CODES.SUCCESS;
         }
         catch (IOException e)
         {

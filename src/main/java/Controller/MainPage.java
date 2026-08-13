@@ -188,7 +188,7 @@ public class MainPage {
                 List<Student> std = SearchStudents.studentSearch(newValue);
 
                 studentVBox.getChildren().clear();
-                std.forEach(student -> Cards.getInstance().createCard(student, studentVBox));
+                std.forEach(student -> Cards.getInstance().createCard(student, studentVBox, false));
             });
         });
 
@@ -234,6 +234,13 @@ public class MainPage {
     {
         if(event.getCode() == KeyCode.ENTER)
         {
+            if(usernameTF.getText().isBlank())
+            {
+                usernameTF.setText("Username can't be empty");
+                usernameTF.setEditable(false);
+                return;
+
+            }
             usernameTF.setEditable(false);
             Backend.getInstance().changeUserName(
                     usernameTF.getText().strip(),
@@ -298,9 +305,9 @@ public class MainPage {
                 ? String.valueOf(CODES.EMPTY)
                 : divisionMenu.getText().strip();
 
-        String seatingPreference = settingMenu.getText().isBlank() || seatingMenu.getText().equals("Select")
+        String seatingPreference = seatingMenu.getText().isBlank() || seatingMenu.getText().equals("Select")
                 ? String.valueOf(CODES.EMPTY)
-                : settingMenu.getText().strip();
+                : seatingMenu.getText().strip();
 
 // Get the selected student image.
         Image img = studentImage.getImage();
@@ -316,7 +323,8 @@ public class MainPage {
                 CheckMenu.getInstance().getSelectedStudents(seprationMenu)
         );
 
-        Cards.getInstance().createCard(newStudent, studentVBox);
+        Cards.getInstance().createCard(newStudent, studentVBox, true);
+
 
 
 
@@ -551,17 +559,20 @@ public class MainPage {
 
 
             Student.students.remove(editingStudent);
+            Backend.getInstance().deleteStudent(editingStudent.getDbID());
             for(Node nd: studentVBox.getChildren())
             {
                 if(nd.getUserData().equals(editingStudent))
                 {
                     studentVBox.getChildren().remove(nd);
+
                     break;
                 }
             }
 
             editingStudent = null;
-            Cards.getInstance().createCard(newStudent, studentVBox);
+
+            Cards.getInstance().createCard(newStudent, studentVBox, true);
 
 
 
@@ -692,10 +703,20 @@ public class MainPage {
     @FXML
     void delAllBtnClicked(ActionEvent event)
     {
-        guestNumLabel.setText("0");
-        studentVBox.getChildren().clear();
+        String userId = Backend.getInstance().getUserId(
+                Home.getInstance().getEmail()
+        );
+
+        Backend.getInstance().deleteAllStudents(userId);
+
         Student.students.clear();
-        seprationMenu.getItems().clear();
+
+        Platform.runLater(() ->
+        {
+            guestNumLabel.setText("0");
+            studentVBox.getChildren().clear();
+            seprationMenu.getItems().clear();
+        });
     }
 
 

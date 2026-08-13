@@ -15,6 +15,7 @@ public class Student {
     private String seatingPreference;
     private Image image;
     private List<Student> cannotSitWith;
+    private int dbID;
 
 
     public static List<Student> students = new ArrayList<>();
@@ -138,5 +139,14 @@ public class Student {
         }
 
         return studentsWithNames;
+    }
+
+
+    public int getDbID() {
+        return dbID;
+    }
+
+    public void setDbID(int dbID) {
+        this.dbID = dbID;
     }
 }

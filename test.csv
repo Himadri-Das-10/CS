@@ -1,16 +1,16 @@
-name,age,class,division,sex,seating_preference,cannot_sit_with
-Zara,17,Higher Secondary School,A,Female,Front,
-Aarav,16,Secondary School,B,Male,Back,Zara
-Maya,18,Higher Secondary School,A,Female,Front,Rohan
-Rohan,15,Secondary School,C,Male,Back,Maya;Aarav
-Ananya,EMPTY,Middle School,B,Female,Front,
-Kabir,16,EMPTY,C,Male,Front,
-Diya,15,Secondary School,EMPTY,Female,Back,
-Arjun,17,Middle School,C,EMPTY,Front,
-Ishita,16,Higher Secondary School,B,Female,EMPTY,
-Meera,15,Primary School,a,female,back,Karan;Neel
-Karan,18,Middle School,A,Male,Front,Meera
-Neel,16,Primary School,A,Male,Front,
-Riya,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,
-Damodar,22,Higher Secondary School,B,EMPTY,Back,
-Gamo,21,Middle School,A,EMPTY,Front,
+name,age,class,division,sex,seating_preference,cannot_sit_with,image_path
+Zara,17,Higher Secondary School,A,Female,Front,EMPTY,EMPTY
+Aarav,16,Secondary School,B,Male,Back,Zara,EMPTY
+Maya,18,Higher Secondary School,A,Female,Front,Rohan,EMPTY
+Rohan,15,Secondary School,C,Male,Back,Maya;Aarav,EMPTY
+Ananya,EMPTY,Middle School,B,Female,Front,EMPTY,EMPTY
+Kabir,16,EMPTY,C,Male,Front,EMPTY,EMPTY
+Diya,15,Secondary School,EMPTY,Female,Back,EMPTY,EMPTY
+Arjun,17,Middle School,C,EMPTY,Front,EMPTY,EMPTY
+Ishita,16,Higher Secondary School,B,Female,EMPTY,EMPTY,EMPTY
+Meera,15,Primary School,A,female,back,Karan;Neel,EMPTY
+Karan,18,Middle School,A,Male,Front,Meera,EMPTY
+Neel,16,Primary School,A,Male,Front,EMPTY,EMPTY
+Riya,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY
+Damodar,22,Higher Secondary School,B,EMPTY,Back,EMPTY,EMPTY
+Gamo,21,Middle School,A,EMPTY,Front,EMPTY,EMPTY

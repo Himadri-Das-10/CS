@@ -20,6 +20,7 @@
 
 <AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="671.0" prefWidth="1062.0" stylesheets="@../Stylesheets/background2.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.MainPage">
    <children>
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#65a0d7" height="306.0" layoutX="250.0" layoutY="180.0" stroke="BLACK" strokeType="INSIDE" width="44.0" />
       <Pane prefHeight="671.0" prefWidth="250.0" style="-fx-background-color: lightgrey;">
          <children>
             <Text layoutX="14.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Username:" />
@@ -77,6 +78,11 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
       </GridPane>
+      <Text layoutX="262.0" layoutY="276.0" strokeType="OUTSIDE" strokeWidth="0.0" text="FRONT" wrappingWidth="9.34765625">
+         <font>
+            <Font name="Arial Rounded MT Bold" size="30.0" />
+         </font>
+      </Text>
       <Pane fx:id="addStudentPane" layoutX="274.0" layoutY="94.0" prefHeight="324.0" prefWidth="302.0" style="-fx-background-color: white;" visible="false">
          <children>
             <Text layoutX="14.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Add student" />
@@ -88,10 +94,10 @@
             <Text layoutX="15.0" layoutY="137.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Class:" />
             <MenuButton fx:id="classMenu" layoutX="57.0" layoutY="120.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="113.0" text="Choose">
               <items>
-                <MenuItem mnemonicParsing="false" onAction="#menuItemSelected" text="Primary school" />
-                <MenuItem mnemonicParsing="false" onAction="#menuItemSelected" text="Middle school" />
+                <MenuItem mnemonicParsing="false" onAction="#menuItemSelected" text="Primary School" />
+                <MenuItem mnemonicParsing="false" onAction="#menuItemSelected" text="Middle School" />
                   <MenuItem mnemonicParsing="false" onAction="#menuItemSelected" text="High School" />
-                  <MenuItem mnemonicParsing="false" onAction="#menuItemSelected" text="Higher Secondary school" />
+                  <MenuItem mnemonicParsing="false" onAction="#menuItemSelected" text="Higher Secondary School" />
               </items>
                <font>
                   <Font size="7.0" />
@@ -132,7 +138,6 @@
             <Button fx:id="finishBtn" layoutX="237.0" layoutY="10.0" mnemonicParsing="false" onAction="#finishBtnClicked" text="Finish" />
          </children>
       </Pane>
-      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#65a0d7" height="306.0" layoutX="250.0" layoutY="180.0" stroke="BLACK" strokeType="INSIDE" width="44.0" />
       <Pane fx:id="detailsPane" layoutX="240.0" layoutY="112.0" prefHeight="305.0" prefWidth="421.0" style="-fx-background-color: orange;" visible="false">
          <children>
             <Text layoutX="14.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Name:" />
@@ -179,10 +184,5 @@
             <Text layoutX="244.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Student Image:" wrappingWidth="49.55078125" />
          </children>
       </Pane>
-      <Text layoutX="262.0" layoutY="276.0" strokeType="OUTSIDE" strokeWidth="0.0" text="FRONT" wrappingWidth="9.34765625">
-         <font>
-            <Font name="Arial Rounded MT Bold" size="30.0" />
-         </font>
-      </Text>
    </children>
 </AnchorPane>

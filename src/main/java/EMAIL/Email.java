@@ -65,8 +65,7 @@ public class Email {
                 random.nextInt(1_000_000)
         );
 
-        // OTP remains valid for 5 minutes.
-        otpExpiry = Instant.now().plusSeconds(120);
+        // OTP remains valid for 5 minutes.otpExpiry = Instant.now().plusSeconds(120);
 
 
         // Creates the HTML email body.

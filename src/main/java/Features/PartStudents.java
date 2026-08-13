@@ -54,18 +54,18 @@ public class PartStudents
 
         for (Student student : boys)
         {
-            Cards.getInstance().createCard(student, container);
+            Cards.getInstance().createCard(student, container, false);
         }
 
 
         for (Student student : girls)
         {
-            Cards.getInstance().createCard(student, container);
+            Cards.getInstance().createCard(student, container, false);
         }
 
         for (Student student : none)
         {
-            Cards.getInstance().createCard(student, container);
+            Cards.getInstance().createCard(student, container, false);
         }
     }
 }

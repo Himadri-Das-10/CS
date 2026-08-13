@@ -1,5 +1,7 @@
 package UI_Element;
 
+import Backend.Backend;
+import Controller.Home;
 import Controller.MainPage;
 import Features.Student;
 import javafx.application.Platform;
@@ -8,6 +10,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -17,8 +20,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.Paths;
+import java.util.*;
 
 public class Cards
 {
@@ -37,12 +40,17 @@ public class Cards
 
     public void createCard(
             Student student,
-            VBox box)
+            VBox box,
+            boolean addDB)
     {
         try
         {
             Parent card = buildCard(student);
             Platform.runLater(()->box.getChildren().add(card));
+
+            if(addDB){
+            Backend.getInstance().addStudent(student, Backend.getInstance().getUserId(Home.getInstance().getEmail()));
+            Backend.getInstance().addCannotSitWith(student.getCannotSitWith(), student);}
         }
         catch (IOException e)
         {
@@ -61,16 +69,18 @@ public class Cards
             List<Student> students = new ArrayList<>();
             List<List<String>> pendingCannotSitWith = new ArrayList<>();
 
-            // Open the CSV file for reading.
+            /*
+             * ============================================================
+             * PHASE 1: READ CSV AND CREATE ALL STUDENT OBJECTS
+             * ============================================================
+             */
+
             try (BufferedReader reader =
                          new BufferedReader(new FileReader(csvFile)))
             {
-                String line = reader.readLine(); // skip header
+                // Skip header
+                String line = reader.readLine();
 
-                // First pass: build every Student, and remember the raw
-                // cannot_sit_with names as strings (can't resolve them
-                // to Student objects yet, since some may not exist until
-                // a later row in the file).
                 while ((line = reader.readLine()) != null)
                 {
                     if (line.isBlank())
@@ -78,8 +88,14 @@ public class Cards
                         continue;
                     }
 
-                    // Split the CSV row into individual fields.
-                    String[] data = line.split(",");
+                    // -1 preserves empty fields
+                    String[] data = line.split(",", -1);
+
+                    if (data.length != 8)
+                    {
+                        System.out.println("Invalid CSV row: " + line);
+                        continue;
+                    }
 
                     String name = data[0].strip();
                     String age = data[1].strip();
@@ -87,15 +103,37 @@ public class Cards
                     String division = data[3].strip();
                     String sex = data[4].strip();
                     String seatingPreference = data[5].strip();
+                    String cannotSitWithData = data[6].strip();
+                    String imagePath = data[7].strip();
 
-                    // cannot_sit_with names are separated by ';' within
-                    // the field, to avoid colliding with the ',' that
-                    // separates CSV columns.
+                    /*
+                     * Convert EMPTY image path into null.
+                     */
+                    Image image = null;
+
+                    if (!imagePath.equalsIgnoreCase("EMPTY")
+                            && !imagePath.isBlank())
+                    {
+                        image = new Image(
+                                Paths.get(imagePath)
+                                        .toUri()
+                                        .toString()
+                        );
+                    }
+
+                    /*
+                     * Store cannot_sit_with names for later.
+                     *
+                     * We CANNOT resolve these to database IDs yet
+                     * because some students may appear later in the CSV.
+                     */
                     List<String> cannotSitWithNames = new ArrayList<>();
 
-                    if (data.length > 6 && !data[6].isBlank())
+                    if (!cannotSitWithData.isBlank()
+                            && !cannotSitWithData.equalsIgnoreCase("EMPTY"))
                     {
-                        for (String rawName : data[6].split(";"))
+                        for (String rawName :
+                                cannotSitWithData.split(";"))
                         {
                             String trimmed = rawName.strip();
 
@@ -106,9 +144,20 @@ public class Cards
                         }
                     }
 
+                    /*
+                     * Create the Student object.
+                     *
+                     * At this point dbID will not necessarily be valid.
+                     */
                     Student student = new Student(
-                            name, age, classLevel, division, sex,
-                            seatingPreference, null, Student.getStudentsWithNamesMatching(cannotSitWithNames)
+                            name,
+                            age,
+                            classLevel,
+                            division,
+                            sex,
+                            seatingPreference,
+                            image,
+                            new ArrayList<>()
                     );
 
                     students.add(student);
@@ -116,30 +165,71 @@ public class Cards
                 }
             }
 
-            // Second pass: now that every Student exists, resolve each
-            // student's cannot_sit_with names into actual Student
-            // references and attach them.
+
+            /*
+             * ============================================================
+             * PHASE 2: INSERT EVERY STUDENT INTO DATABASE
+             * ============================================================
+             *
+             * This MUST happen before adding cannot_sit_with relationships.
+             *
+             * Every Student must have a valid dbID first.
+             */
+
+            String userId =
+                    Backend.getInstance()
+                            .getUserId(Home.getInstance().getEmail());
+
+            for (Student student : students)
+            {
+                Backend.getInstance().addStudent(student, userId);
+
+                System.out.println(
+                        "Inserted " +
+                                student.getName() +
+                                " with DB ID " +
+                                student.getDbID()
+                );
+            }
+
+
+            /*
+             * ============================================================
+             * PHASE 3: RESOLVE cannot_sit_with RELATIONSHIPS
+             * ============================================================
+             */
+
             for (int i = 0; i < students.size(); i++)
             {
                 Student student = students.get(i);
-                List<String> names = pendingCannotSitWith.get(i);
 
-                List<Student> resolved = new ArrayList<>();
+                List<String> names =
+                        pendingCannotSitWith.get(i);
+
+                List<Student> resolved =
+                        new ArrayList<>();
 
                 for (String targetName : names)
                 {
-                    Student match = findByName(students, targetName);
+                    Student match =
+                            findByName(students, targetName);
 
                     if (match != null)
                     {
+                        /*
+                         * At this point match MUST already have
+                         * a database ID.
+                         */
                         resolved.add(match);
                     }
                     else
                     {
                         System.out.println(
-                                "Warning: '" + student.getName()
-                                        + "' has cannot_sit_with entry '"
-                                        + targetName + "' which was not found."
+                                "Warning: '" +
+                                        student.getName() +
+                                        "' has cannot_sit_with entry '" +
+                                        targetName +
+                                        "' which was not found."
                         );
                     }
                 }
@@ -147,25 +237,70 @@ public class Cards
                 student.setCannotSitWith(resolved);
             }
 
-            // Third pass: build and add a card for every student.
+
+            /*
+             * ============================================================
+             * PHASE 4: INSERT cannot_sit_with RELATIONSHIPS
+             * ============================================================
+             */
+
+            for (Student student : students)
+            {
+                System.out.println(
+                        "Adding cannot-sit-with relationships for " +
+                                student.getName() +
+                                " (ID " +
+                                student.getDbID() +
+                                ")"
+                );
+
+                Backend.getInstance().addCannotSitWith(
+                        student.getCannotSitWith(),
+                        student
+                );
+            }
+
+
+            /*
+             * ============================================================
+             * PHASE 5: DISPLAY THE CARDS
+             * ============================================================
+             */
+
             for (Student student : students)
             {
                 Parent card = buildCard(student);
 
-                Platform.runLater(() -> {
+                Platform.runLater(() ->
+                {
                     box.getChildren().add(card);
 
-                    Label guestNumLabel = MainPage.getInstance().getGuestNumLabel();
-                    guestNumLabel.setText(String.valueOf(
-                            Integer.parseInt(guestNumLabel.getText().strip()) + 1
-                    ));
+                    Label guestNumLabel =
+                            MainPage.getInstance()
+                                    .getGuestNumLabel();
+
+                    guestNumLabel.setText(
+                            String.valueOf(
+                                    Integer.parseInt(
+                                            guestNumLabel
+                                                    .getText()
+                                                    .strip()
+                                    ) + 1
+                            )
+                    );
                 });
             }
         }
         catch (IOException e)
         {
             System.out.println("Could not read student CSV.");
-            Platform.runLater(()-> MainPage.getInstance().getErrorPane().setVisible(true));
+
+            Platform.runLater(() ->
+                    MainPage.getInstance()
+                            .getErrorPane()
+                            .setVisible(true)
+            );
+
             e.printStackTrace();
         }
     }
@@ -243,9 +378,10 @@ public class Cards
         });
 
         deleteItem.setOnAction(event -> {
+            Student std = (Student) card.getUserData();
             Platform.runLater(() -> {
 
-                Student std = (Student) card.getUserData();
+
 
                 // Remove std from every other student's cannotSitWith list.
                 for (Student stu : Student.students)
@@ -266,7 +402,7 @@ public class Cards
 
                 for (Student stu : Student.students)
                 {
-                    Cards.getInstance().createCard(stu, studentVBox);
+                    Cards.getInstance().createCard(stu, studentVBox, false);
                 }
 
                 MainPage.getInstance().getGuestNumLabel().setText(
@@ -277,6 +413,9 @@ public class Cards
                         )
                 );
             });
+
+
+            Backend.getInstance().deleteStudent(std.getDbID());
         });
 
         // Retrieve the UI elements using their fx:id.
@@ -345,8 +484,15 @@ public class Cards
             studentImage.setImage(student.getImage());
         }
 
+
+
+
+
         return card;
     }
+
+
+
 
 
 
