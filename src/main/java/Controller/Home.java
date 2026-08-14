@@ -70,8 +70,11 @@ public class Home {
         {
             case NAMEERR ->{   paneUsername.setVisible(true); }
             case EMAILDNE ->{   paneEmail.setVisible(true); }
-            case SUCCESS -> {
-                SceneManager.getInstance().changeScene("mainPage");
+            case SUCCESS ->
+            {
+
+                SceneManager.getInstance().changeScene("otp");
+                Otp.getInstance().setLogin(true);
             }
         }
 

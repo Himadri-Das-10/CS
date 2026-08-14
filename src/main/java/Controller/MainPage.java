@@ -200,11 +200,9 @@ public class MainPage {
 
 
         if(Backend.getInstance().isTherePreviousSession(
-                Integer.parseInt(Backend.getInstance().getUserId(
-                        Home.getInstance().getEmail()
-                )
+                Student.userID
         )
-        ))
+        )
         {
             restorePane.setVisible(true);
             mainPane.setVisible(true);
@@ -718,11 +716,9 @@ public class MainPage {
     @FXML
     void delAllBtnClicked(ActionEvent event)
     {
-        String userId = Backend.getInstance().getUserId(
-                Home.getInstance().getEmail()
-        );
 
-        Backend.getInstance().deleteAllStudents(userId);
+
+        Backend.getInstance().deleteAllStudents(Student.userID);
 
         Student.students.clear();
 
@@ -942,9 +938,9 @@ public class MainPage {
     {
         mainPane.setDisable(false);
         Backend.getInstance().loadPreviousSession(
-                Integer.parseInt(Backend.getInstance().getUserId(Home.getInstance().getEmail())),
-                studentVBox
-        );
+                Student.userID,
+                studentVBox);
+
         restorePane.setVisible(false);
 
     }

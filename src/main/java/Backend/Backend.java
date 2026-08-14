@@ -13,6 +13,7 @@ import java.io.File;
 import java.net.URI;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -32,57 +33,6 @@ public class Backend {
         }
         return backend;
     }
-
-
-
-
-
-    public String getUserId(String email) {
-
-        String sql = """
-        SELECT user_id
-        FROM Users
-        WHERE email = ?
-        """;
-
-        try (Connection connection = Database.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
-            // Assigns the email to the '?' placeholder.
-            statement.setString(1, email);
-
-            // Executes the prepared SQL query.
-            ResultSet resp = statement.executeQuery();
-
-            // Moves the ResultSet to the first returned row.
-            // If there is no row, the email does not exist.
-            if (resp.next()) {
-
-                return resp.getString("user_id");
-            }
-
-            // No user was found with this email.
-            return null;
-
-        } catch (SQLException e) {
-
-            // Handles database-related errors.
-            System.out.println("Could not get userID");
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -140,6 +90,7 @@ public class Backend {
         String sql = """
             INSERT INTO Users (email, username)
             VALUES (?, ?)
+            RETURNING user_id;
             """;
 
 
@@ -151,8 +102,7 @@ public class Backend {
         // so that the JavaFX Application Thread is not blocked.
 
 
-        SeprateTask.getInstance().offload(()->
-        {
+
 
             // Opens a database connection and creates a PreparedStatement.
             // The try-with-resources statement automatically closes both
@@ -169,7 +119,11 @@ public class Backend {
 
                 // Executes the INSERT query and adds the user
                 // to the Users table.
-                statement.executeUpdate();
+                ResultSet es = statement.executeQuery();
+
+                if (es.next()) {
+                    Student.userID = es.getInt("user_id");
+                }
 
 
             } catch (SQLException e) {
@@ -179,7 +133,7 @@ public class Backend {
                 System.out.println("Could not add user");
                 e.printStackTrace();
             }
-        });
+
     }
 
 
@@ -220,7 +174,7 @@ public class Backend {
 
 
 
-    public void addStudent(Student data, String user_id) {
+    public void addStudent(Student data, int user_id) {
 
         // SQL query used to insert a new user into the database.
         // The '?' placeholders are replaced with the actual values
@@ -250,7 +204,7 @@ public class Backend {
                  PreparedStatement statement = connection.prepareStatement(sql)) {
 
 
-                statement.setInt(1, Integer.parseInt(user_id));
+                statement.setInt(1, user_id);
 
                 statement.setString(2, data.getName());
                 statement.setInt(3, data.getAge().equals("EMPTY")?-1:Integer.parseInt(data.getAge()));
@@ -418,7 +372,7 @@ public class Backend {
     }
 
 
-    public void deleteAllStudents(String user_id)
+    public void deleteAllStudents(int user_id)
     {
         String sql = """
         DELETE FROM students
@@ -430,7 +384,7 @@ public class Backend {
             try (Connection connection = Database.getConnection();
                  PreparedStatement statement = connection.prepareStatement(sql))
             {
-                statement.setInt(1, Integer.parseInt(user_id));
+                statement.setInt(1, user_id);
 
                 int deletedRows = statement.executeUpdate();
 
@@ -651,6 +605,38 @@ public class Backend {
         );
 
         MainPage.getInstance().getGuestNumLabel().setText(String.valueOf(loadedStudents.size()));
+    }
+
+
+
+
+
+    public int getUserId(String email, String userName)
+    {
+        String sql = """
+                SELECT user_id FROM Users
+                WHERE email = ? AND username = ?
+                """;
+
+        try(Connection con = Database.getConnection();
+                PreparedStatement statement = con.prepareStatement(sql))
+        {
+            statement.setString(1, email);
+            statement.setString(2, userName);
+
+            ResultSet resultSet = statement.executeQuery();
+            if(resultSet.next())
+                return resultSet.getInt("user_id");
+            else
+                return -1;
+        }
+        catch(Exception ex)
+        {
+            System.out.println("Could not get User ID");
+            ex.printStackTrace();
+            return -1;
+        }
+
     }
 
 

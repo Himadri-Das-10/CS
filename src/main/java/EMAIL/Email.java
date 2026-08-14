@@ -23,7 +23,7 @@ public class Email {
     private String otp;
 
     // Stores the exact time at which the OTP expires.
-    private Instant otpExpiry;
+    private Instant otpExpiry = Instant.now().plusSeconds(120);
 
 
     // Returns the single Email instance used by the application.

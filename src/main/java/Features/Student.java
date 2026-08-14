@@ -17,6 +17,8 @@ public class Student {
     private List<Student> cannotSitWith;
     private int dbID;
 
+    public static int userID;
+
 
     public static List<Student> students = new ArrayList<>();
 

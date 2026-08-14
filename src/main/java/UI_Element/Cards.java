@@ -22,6 +22,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
+import Backend.*;
 
 public class Cards
 {
@@ -49,7 +50,7 @@ public class Cards
             Platform.runLater(()->box.getChildren().add(card));
 
             if(addDB){
-            Backend.getInstance().addStudent(student, Backend.getInstance().getUserId(Home.getInstance().getEmail()));
+            Backend.getInstance().addStudent(student, Student.userID);
             Backend.getInstance().addCannotSitWith(student.getCannotSitWith(), student);}
         }
         catch (IOException e)
@@ -64,6 +65,7 @@ public class Cards
 
     public void createCard(File csvFile, VBox box)
     {
+        System.out.println("Student.userID at import time: " + Student.userID);
         try
         {
             List<Student> students = new ArrayList<>();
@@ -176,13 +178,11 @@ public class Cards
              * Every Student must have a valid dbID first.
              */
 
-            String userId =
-                    Backend.getInstance()
-                            .getUserId(Home.getInstance().getEmail());
+
 
             for (Student student : students)
             {
-                Backend.getInstance().addStudent(student, userId);
+                Backend.getInstance().addStudent(student, Student.userID);
 
                 System.out.println(
                         "Inserted " +
@@ -491,6 +491,9 @@ public class Cards
 
         return card;
     }
+
+
+
 
 
 

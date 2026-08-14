@@ -3,6 +3,7 @@ package Controller;
 import Backend.Backend;
 import CODES.CODES;
 import EMAIL.Email;
+import Features.Student;
 import SceneManager.SceneManager;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -22,6 +23,8 @@ public class Otp {
     @FXML
     private Button enterBtn;
 
+    private boolean login = false;
+
     @FXML
     private TextField otpTF;
 
@@ -30,6 +33,12 @@ public class Otp {
 
     @FXML
     private Label timerLabel;
+
+    private static Otp otp;
+    public Otp() { otp = this; }
+    public static Otp getInstance() {
+        return otp;
+    }
 
 
     @FXML
@@ -49,7 +58,17 @@ public class Otp {
         if (CODES.SUCCESS.equals(Email.getInstance().isOTPValid(otp)))
         {
             System.out.println("OTP entered successfully");
-            Backend.getInstance().addUser(Home.getInstance().getEmail(), Home.getInstance().getUsername());
+
+            if(!login)
+            {
+                Backend.getInstance().addUser(Home.getInstance().getEmail(), Home.getInstance().getUsername());
+                login = false;
+            }
+            else
+            {
+                Student.userID = Backend.getInstance().getUserId(Home.getInstance().getEmail(), Home.getInstance().getUsername());
+            }
+
 
             SceneManager.getInstance().changeScene("mainPage");
 
@@ -158,5 +177,7 @@ public class Otp {
                 "-fx-text-fill: white;"
         );
     }
+
+    public void setLogin(boolean login) { this.login = login; }
 
 }
