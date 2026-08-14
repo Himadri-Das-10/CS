@@ -132,47 +132,32 @@ public class Validation
                 /*
                  * CLASS
                  */
-                if (!classLevel.equals("Primary School") &&
-                        !classLevel.equals("Middle School") &&
-                        !classLevel.equals("High School") &&
-                        !classLevel.equals("Higher Secondary School") &&
-                        !classLevel.equals(String.valueOf(CODES.EMPTY))) {
-                    System.out.println(CODES.INVALID + "Problem with class");
+                if (!Enums.ClassLevel.isValid(classLevel) && !classLevel.equalsIgnoreCase(String.valueOf(CODES.EMPTY))) {
+                    System.out.println(CODES.INVALID + " Problem with class");
                     return CODES.INVALID;
                 }
 
                 /*
                  * DIVISION
                  */
-                if (!division.equalsIgnoreCase("A") &&
-                        !division.equalsIgnoreCase("B") &&
-                        !division.equalsIgnoreCase("C") &&
-                        !division.equalsIgnoreCase("D") &&
-                        !division.equalsIgnoreCase(
-                                String.valueOf(CODES.EMPTY))) {
-                    System.out.println(CODES.INVALID + "Problem with division");
+                if (!Enums.Division.isValid(division) && !division.equalsIgnoreCase(String.valueOf(CODES.EMPTY))) {
+                    System.out.println(CODES.INVALID + " Problem with division");
                     return CODES.INVALID;
                 }
 
                 /*
                  * SEX
                  */
-                if (!sex.equalsIgnoreCase("Male") &&
-                        !sex.equalsIgnoreCase("Female") &&
-                        !sex.equalsIgnoreCase(
-                                String.valueOf(CODES.EMPTY))) {
-                    System.out.println(CODES.INVALID + "Problem with sex");
+                if (!Enums.Sex.isValid(sex) && !sex.equalsIgnoreCase(String.valueOf(CODES.EMPTY))) {
+                    System.out.println(CODES.INVALID + " Problem with sex");
                     return CODES.INVALID;
                 }
 
                 /*
                  * SEATING PREFERENCE
                  */
-                if (!seatingPreference.equalsIgnoreCase("Front") &&
-                        !seatingPreference.equalsIgnoreCase("Back") &&
-                        !seatingPreference.equalsIgnoreCase(
-                                String.valueOf(CODES.EMPTY))) {
-                    System.out.println(CODES.INVALID + "Problem with seating pref");
+                if (!Enums.SeatingPreference.isValid(seatingPreference) && !seatingPreference.equalsIgnoreCase(String.valueOf(CODES.EMPTY))) {
+                    System.out.println(CODES.INVALID + " Problem with seating pref");
                     return CODES.INVALID;
                 }
 

@@ -186,22 +186,20 @@ public class Email {
                     "text/html; charset=UTF-8"
             );
 
-            // Sends the email.
-            SeprateTask.getInstance().offload(()-> {
+            // Sends the email via SeprateTask thread pool.
+            SeprateTask.getInstance().offload(() -> {
                 try {
                     Transport.send(message);
+                    System.out.println("Sent otp successfully....");
                 } catch (MessagingException e) {
-                    throw new RuntimeException(e);
+                    System.err.println("Could not send OTP email: " + e.getMessage());
                 }
             });
 
-            System.out.println("Sent otp successfully....");
-
         } catch (MessagingException e) {
 
-            // Handles errors when creating or sending
-            // the email.
-            System.out.println("Error sending email");
+            // Handles errors when creating the email message.
+            System.err.println("Error constructing email message: " + e.getMessage());
         }
 
     }

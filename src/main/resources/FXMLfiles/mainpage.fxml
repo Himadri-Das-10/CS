@@ -96,7 +96,7 @@
               <items>
                 <MenuItem mnemonicParsing="false" onAction="#menuItemSelected" text="Primary School" />
                 <MenuItem mnemonicParsing="false" onAction="#menuItemSelected" text="Middle School" />
-                  <MenuItem mnemonicParsing="false" onAction="#menuItemSelected" text="High School" />
+                  <MenuItem mnemonicParsing="false" onAction="#menuItemSelected" text="Secondary School" />
                   <MenuItem mnemonicParsing="false" onAction="#menuItemSelected" text="Higher Secondary School" />
               </items>
                <font>

@@ -1,9 +1,11 @@
 package UI_Element;
 
 import Backend.Backend;
+import CODES.CODES;
 import Controller.Home;
 import Controller.MainPage;
 import Features.Student;
+import Offload.SeprateTask;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -15,14 +17,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import CODES.CODES;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
-import Backend.*;
 
 public class Cards
 {
@@ -49,9 +50,12 @@ public class Cards
             Parent card = buildCard(student);
             Platform.runLater(()->box.getChildren().add(card));
 
-            if(addDB){
-            Backend.getInstance().addStudent(student, Student.userID);
-            Backend.getInstance().addCannotSitWith(student.getCannotSitWith(), student);}
+            if (addDB) {
+                SeprateTask.getInstance().offload(() -> {
+                    Backend.getInstance().addStudent(student, Student.userID);
+                    Backend.getInstance().addCannotSitWith(student.getCannotSitWith(), student);
+                });
+            }
         }
         catch (IOException e)
         {
@@ -438,44 +442,18 @@ public class Cards
                 (Text) loader.getNamespace().get("sexText");
 
 
-        // Display "Unspecified" when the value is CODES.EMPTY.
-        String empty = String.valueOf(CODES.EMPTY);
+        nameText.setText("Name: " + Enums.EnumMapper.formatForDisplay(student.getName()));
+        ageText.setText("Age: " + Enums.EnumMapper.formatForDisplay(student.getAge()));
+        classText.setText("Class: " + Enums.EnumMapper.formatForDisplay(student.getClassLevel()));
+        divisionText.setText("Division: " + Enums.EnumMapper.formatForDisplay(student.getDivision()));
+        sexText.setText("Sex: " + Enums.EnumMapper.formatForDisplay(student.getSex()));
 
-        nameText.setText(
-                "Name: " +
-                        (student.getName().equals(empty) ? "Unspecified" : student.getName())
-        );
-
-        ageText.setText(
-                "Age: " +
-                        (student.getAge().equals(empty) || student.getAge().equals("-1") ? "Unspecified" : student.getAge())
-        );
-
-        classText.setText(
-                "Class: " +
-                        (student.getClassLevel().equals(empty) ? "Unspecified" : student.getClassLevel())
-        );
-
-        divisionText.setText(
-                "Division: " +
-                        (student.getDivision().equals(empty) ? "Unspecified" : student.getDivision())
-        );
-
-        sexText.setText(
-                "Sex: " +
-                        (student.getSex().equals(empty) ? "Unspecified" : student.getSex())
-        );
-
-        Pane sexStrip =
-                (Pane) loader.getNamespace().get("sexStrip");
-
-        if (student.getSex().equalsIgnoreCase("Male"))
-        {
-            sexStrip.setStyle("-fx-background-color: #536DFE;"); // Lapis blue
-        }
-        else if (student.getSex().equalsIgnoreCase("Female"))
-        {
-            sexStrip.setStyle("-fx-background-color: #E8A0BF;"); // Bougainvillea pink
+        Pane sexStrip = (Pane) loader.getNamespace().get("sexStrip");
+        Enums.Sex sex = Enums.Sex.fromString(student.getSex());
+        switch (sex) {
+            case MALE -> sexStrip.setStyle("-fx-background-color: #536DFE;"); // Lapis blue
+            case FEMALE -> sexStrip.setStyle("-fx-background-color: #E8A0BF;"); // Bougainvillea pink
+            case EMPTY -> sexStrip.setStyle("-fx-background-color: lightgray;");
         }
 
         // Set the student's image if one was selected.

@@ -6,6 +6,8 @@ import Controller.MainPage;
 import Features.Student;
 import Offload.SeprateTask;
 import UI_Element.Cards;
+import UI_Element.CheckMenu;
+import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 
@@ -197,56 +199,30 @@ public class Backend {
 
 
 
-            // Opens a database connection and creates a PreparedStatement.
-            // The try-with-resources statement automatically closes both
-            // resources when they are no longer needed.
             try (Connection connection = Database.getConnection();
                  PreparedStatement statement = connection.prepareStatement(sql)) {
 
-
                 statement.setInt(1, user_id);
-
                 statement.setString(2, data.getName());
-                statement.setInt(3, data.getAge().equals("EMPTY")?-1:Integer.parseInt(data.getAge()));
-                statement.setString(4, data.getClassLevel());
-                statement.setString(6,
-                        data.getSex().equalsIgnoreCase("male") ? "Male" :
-                                data.getSex().equalsIgnoreCase("female") ? "Female" :
-                                        data.getSex()
-                );
+                statement.setInt(3, (data.getAge() == null || data.getAge().equals("EMPTY")) ? -1 : Integer.parseInt(data.getAge()));
 
-                statement.setString(7,
-                        data.getSeatingPreference().equalsIgnoreCase("front") ? "Front" :
-                                data.getSeatingPreference().equalsIgnoreCase("back") ? "Back" :
-                                        data.getSeatingPreference()
-                );
+                // Standardized Enum mappings with efficient null handling
+                statement.setString(4, Enums.EnumMapper.toClassLevelDb(data.getClassLevel()));
+                statement.setString(5, Enums.EnumMapper.toDivisionDb(data.getDivision()));
+                statement.setString(6, Enums.EnumMapper.toSexDb(data.getSex()));
+                statement.setString(7, Enums.EnumMapper.toSeatingPrefDb(data.getSeatingPreference()));
 
-                statement.setString(5,
-                        data.getDivision().equalsIgnoreCase("a") ? "A" :
-                                data.getDivision().equalsIgnoreCase("b") ? "B" :
-                                        data.getDivision().equalsIgnoreCase("c") ? "C" :
-                                                data.getDivision().equalsIgnoreCase("d") ? "D" :
-                                                        data.getDivision()
-                );
+                statement.setString(8, (data.getImage() == null) ? "EMPTY" : data.getImage().getUrl());
 
-                statement.setString(8, data.getImage()==null?"EMPTY":data.getImage().getUrl());
-
-
-
-                // Executes the INSERT query and adds the user
-                // to the Users table.
+                // Executes the INSERT query and retrieves the generated student_id
                 ResultSet resultSet = statement.executeQuery();
 
                 if (resultSet.next()) {
                     data.setDbID(resultSet.getInt("student_id"));
                 }
 
-
             } catch (SQLException e) {
-
-                // Handles errors that occur while establishing the
-                // database connection or creating the PreparedStatement.
-                System.out.println("Could not add student");
+                System.err.println("Could not add student to database");
                 e.printStackTrace();
             }
 
@@ -264,57 +240,38 @@ public class Backend {
 
     public void addCannotSitWith(List<Student> students, Student mainStudent)
     {
-        // SQL query used to insert a new user into the database.
-        // The '?' placeholders are replaced with the actual values
-        // using the PreparedStatement below.
+        if (mainStudent == null || mainStudent.getDbID() <= 0 || students == null || students.isEmpty())
+        {
+            return;
+        }
+
         String sql = """
             INSERT INTO cannot_sit_with (student_id, cannot_sit_with_student_id)
             VALUES (?, ?)
             """;
 
+        int mainStudentId = mainStudent.getDbID();
+        try (Connection connection = Database.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
 
-
-
-        // Database operations can take time because they involve
-        // communication with an external database server.
-        // Therefore, the operation is moved to a separate thread
-        // so that the JavaFX Application Thread is not blocked.
-
-
-
-
-            // Opens a database connection and creates a PreparedStatement.
-            // The try-with-resources statement automatically closes both
-            // resources when they are no longer needed.
-
-            int mainStudentId = mainStudent.getDbID();
-            try (Connection connection = Database.getConnection();
-                 PreparedStatement statement = connection.prepareStatement(sql)) {
-
-                for (Student student : students)
+            for (Student student : students)
+            {
+                int std = student.getDbID();
+                if (std <= 0)
                 {
-                    int std = student.getDbID();
-
-                    System.out.println("Main student ID: " + mainStudentId);
-                    System.out.println("Cannot sit with ID: " + std);
-
-                    statement.setInt(1, mainStudentId);
-                    statement.setInt(2, std);
-
-                    statement.executeUpdate();
+                    continue;
                 }
 
+                statement.setInt(1, mainStudentId);
+                statement.setInt(2, std);
 
-
-
-
-            } catch (SQLException e) {
-
-                // Handles errors that occur while establishing the
-                // database connection or creating the PreparedStatement.
-                System.out.println("Could not add cannot sit with");
-                e.printStackTrace();
+                statement.executeUpdate();
             }
+
+        } catch (SQLException e) {
+            System.err.println("Could not add cannot sit with relationship");
+            e.printStackTrace();
+        }
 
     }
 
@@ -598,6 +555,28 @@ public class Backend {
                     false
             );
         }
+
+        /*
+         * ============================================================
+         * POPULATE CANNOT-SIT-WITH MENU
+         *
+         * After restoring, we must add a CheckMenuItem for every
+         * loaded student into the seprationMenu so that the
+         * "Cannot Sit With" MenuButton in the Add Student pane
+         * reflects the restored student list.
+         * ============================================================
+         */
+
+        Platform.runLater(() ->
+        {
+            for (Student student : loadedStudents)
+            {
+                CheckMenu.getInstance().createCheckMenuItem(
+                        student,
+                        MainPage.getInstance().getSeprationMenu()
+                );
+            }
+        });
 
         System.out.println(
                 "Loaded " + loadedStudents.size() +

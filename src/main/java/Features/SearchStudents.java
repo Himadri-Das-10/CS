@@ -22,22 +22,20 @@ public class SearchStudents
 
     public static List<Student> studentSearch(String name1)
     {
-        if(name1.isEmpty())
+        if (name1 == null || name1.isBlank())
         {
             return students;
         }
-        List<Student> result=new ArrayList<>();
+        List<Student> result = new ArrayList<>();
 
-        name1=name1.toLowerCase().strip();
-        for(Student s:students)
+        name1 = name1.toLowerCase().strip();
+        for (Student s : students)
         {
-            String name2 = s.getName().toLowerCase().strip();
-            double simi = jaccardSimilarity(name1,name2);
+            String name2 = (s.getName() != null) ? s.getName().toLowerCase().strip() : "";
+            double simi = jaccardSimilarity(name1, name2);
 
-            if(simi>0.35)
+            if (simi > 0.35)
                 result.add(s);
-
-
         }
 
         return result;

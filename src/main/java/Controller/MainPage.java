@@ -191,13 +191,10 @@ public class MainPage {
 
         studentSearch.textProperty().addListener((observable, oldValue, newValue) ->
         {
-            Platform.runLater(()->{
+            List<Student> std = SearchStudents.studentSearch(newValue);
 
-                List<Student> std = SearchStudents.studentSearch(newValue);
-
-                studentVBox.getChildren().clear();
-                std.forEach(student -> Cards.getInstance().createCard(student, studentVBox, false));
-            });
+            studentVBox.getChildren().clear();
+            std.forEach(student -> Cards.getInstance().createCard(student, studentVBox, false));
         });
 
 
@@ -306,25 +303,13 @@ public class MainPage {
             }
         }
 
-// Get the selected values from the menus.
-// If nothing was selected, store CODES.EMPTY.
-        String sex = sexMenu.getText().isBlank() || sexMenu.getText().equals("Choose")
-                ? String.valueOf(CODES.EMPTY)
-                : sexMenu.getText().strip();
+        // Cleanly map enum values with efficient null checks
+        String sex = Enums.EnumMapper.toSexDb(sexMenu.getText());
+        String classLevel = Enums.EnumMapper.toClassLevelDb(classMenu.getText());
+        String division = Enums.EnumMapper.toDivisionDb(divisionMenu.getText());
+        String seatingPreference = Enums.EnumMapper.toSeatingPrefDb(seatingMenu.getText());
 
-        String classLevel = classMenu.getText().isBlank() || classMenu.getText().equals("Choose")
-                ? String.valueOf(CODES.EMPTY)
-                : classMenu.getText().strip();
-
-        String division = divisionMenu.getText().isBlank() || divisionMenu.getText().equals("Choose")
-                ? String.valueOf(CODES.EMPTY)
-                : divisionMenu.getText().strip();
-
-        String seatingPreference = seatingMenu.getText().isBlank() || seatingMenu.getText().equals("Select")
-                ? String.valueOf(CODES.EMPTY)
-                : seatingMenu.getText().strip();
-
-// Get the selected student image.
+        // Get the selected student image.
         Image img = studentImage.getImage();
 
         Student newStudent = new Student(
@@ -539,25 +524,13 @@ public class MainPage {
                 }
             }
 
-// Get the selected values from the menus.
-// If nothing was selected, store CODES.EMPTY.
-            String sex = sexMenuButtonD.getText().isBlank() || sexMenuButtonD.getText().equals("Choose")
-                    ? String.valueOf(CODES.EMPTY)
-                    : sexMenuButtonD.getText().strip();
+            // Cleanly map enum values with efficient null checks
+            String sex = Enums.EnumMapper.toSexDb(sexMenuButtonD.getText());
+            String classLevel = Enums.EnumMapper.toClassLevelDb(classMenuButtonD.getText());
+            String division = Enums.EnumMapper.toDivisionDb(divisionMenuBtnD.getText());
+            String seatingPreference = Enums.EnumMapper.toSeatingPrefDb(seatingPreferenceD.getText());
 
-            String classLevel = classMenuButtonD.getText().isBlank() || classMenuButtonD.getText().equals("Choose")
-                    ? String.valueOf(CODES.EMPTY)
-                    : classMenuButtonD.getText().strip();
-
-            String division = divisionMenuBtnD.getText().isBlank() || divisionMenuBtnD.getText().equals("Choose")
-                    ? String.valueOf(CODES.EMPTY)
-                    : divisionMenuBtnD.getText().strip();
-
-            String seatingPreference = seatingPreferenceD.getText().isBlank() || seatingPreferenceD.getText().equals("Select")
-                    ? String.valueOf(CODES.EMPTY)
-                    : seatingPreferenceD.getText().strip();
-
-// Get the selected student image.
+            // Get the selected student image.
             Image img = studentImageD.getImage();
 
             Student newStudent = new Student(
@@ -666,46 +639,38 @@ public class MainPage {
 
 
 
+    /**
+     * Executes a student arrangement algorithm polymorphically via the Strategy Design Pattern.
+     *
+     * @param strategy the concrete arrangement strategy to execute
+     */
+    private void executeArrangementStrategy(StudentArrangementStrategy strategy)
+    {
+        List<Student> arranged = strategy.arrange(Student.students);
+        studentVBox.getChildren().clear();
+        for (Student student : arranged)
+        {
+            Cards.getInstance().createCard(student, studentVBox, false);
+        }
+        personalizeMenu.setText(strategy.getName());
+    }
+
     @FXML
     void sepBoysAndGirlsSelected(ActionEvent event)
     {
-
-            Platform.runLater(()-> {
-                studentVBox.getChildren().clear();
-                PartStudents.getInstance().partStudents(studentVBox);
-            });
-
-
-        personalizeMenu.setText("Separate Boy and Girls");
+        executeArrangementStrategy(new GenderPartitionStrategy());
     }
 
     @FXML
     void shuffleStudentsSelected(ActionEvent event)
     {
-
-            Platform.runLater(()-> {
-                studentVBox.getChildren().clear();
-                RanShuffleStudent.getInstance().ranShuffleStudent(studentVBox);
-            });
-
-
-        personalizeMenu.setText("Shuffle Students");
-
+        executeArrangementStrategy(new RandomShuffleStrategy());
     }
 
     @FXML
     void sortSelected(ActionEvent event)
     {
-
-            Platform.runLater(()-> {
-                studentVBox.getChildren().clear();
-                SortStudents.getInstance().sortStudents(studentVBox);
-            });
-
-
-
-        personalizeMenu.setText("Sort");
-
+        executeArrangementStrategy(new AlphabeticalSortStrategy());
     }
 
 
@@ -738,17 +703,7 @@ public class MainPage {
         CODES cd = Validation.getInstance().validateIntegerField(errorPane, guestNumTF.getText().strip(), errorText, "SEATS", guestNumLabel.getText().strip());
         if(!cd.toString().equals("INVALID"))
         {
-            CODES rtype;
-            if(settingMenu.getText().equals("Classroom"))
-                rtype = CODES.CLASSROOM;
-            else if(settingMenu.getText().equals("Auditorium"))
-                rtype = CODES.AUDITORIUM;
-            else if(settingMenu.getText().equals("Computer Lab"))
-                rtype = CODES.COMPUTER_LAB;
-            else
-                rtype = CODES.CLASSROOM;
-
-
+            Enums.RoomType rtype = Enums.RoomType.fromString(settingMenu.getText());
 
             AllotStudents.getInstance().renderSeating(
                     AllotStudents.getInstance().generateSeating(Student.students,
@@ -890,46 +845,22 @@ public class MainPage {
 
 
     @FXML
-    void exportToPDFBtnClicked(ActionEvent event)
-    {
-        List<File> saveFile = new ArrayList<>();
+    void exportToPDFBtnClicked(ActionEvent event) {
         Map<String, String> data = new HashMap<>();
-        Platform.runLater(()->{
+        data.put(PdfExport.KEY_NAME, usernameTF.getText());
+        data.put(PdfExport.KEY_SETTING, settingMenu.getText().equals("Setting") ? "Classroom" : settingMenu.getText().strip());
+        data.put(PdfExport.KEY_TOTAL_STUDENTS, String.valueOf(Student.students.size()));
+        data.put(PdfExport.KEY_TOTAL_SEATS, guestNumTF.getText());
 
-            data.put(PdfExport.KEY_NAME, usernameTF.getText());
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Seating Report");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
 
-            data.put(PdfExport.KEY_SETTING, settingMenu.getText().equals("Setting")?"Classroom":settingMenu.getText().strip());
-            data.put(PdfExport.KEY_TOTAL_STUDENTS, String.valueOf(Student.students.size()));
-            data.put(PdfExport.KEY_TOTAL_SEATS, guestNumTF.getText());
-
-
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Save Seating Report");
-            fileChooser.getExtensionFilters().add(
-                    new FileChooser.ExtensionFilter("PDF Files", "*.pdf")
-            );
-
-
-
-            saveFile.add(fileChooser.showSaveDialog(SceneManager.getInstance().getMainStage()));
-        });
-
-            SeprateTask.getInstance().offload(()->{
-
-
-
-                    if (saveFile.getFirst() != null) {
-                        PdfExport.getInstance().convertIntoPdf(
-                                data,
-                                studentVBox,
-                                seatGrid,   // your GridPane field, once added
-                                saveFile.getFirst().getAbsolutePath()
-                        );
-
-                    }
-
-
-            });
+        File saveFile = fileChooser.showSaveDialog(SceneManager.getInstance().getMainStage());
+        if (saveFile != null) {
+            // UI node capture and PDF generation executed safely
+            PdfExport.getInstance().convertIntoPdf(data, studentVBox, seatGrid, saveFile.getAbsolutePath());
+        }
     }
 
 
