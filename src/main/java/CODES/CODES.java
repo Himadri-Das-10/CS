@@ -4,7 +4,6 @@ public enum CODES {
     SUCCESS,
     EMAILDNE,
     NAMEERR,
-    DATABASE_ERROR,
     OTPEXP,
     OTPINV,
     EMPTY,

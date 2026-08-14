@@ -39,7 +39,7 @@
                </font>
             </Text>
             <Button fx:id="signupBtn" layoutX="144.0" layoutY="59.0" mnemonicParsing="false" onAction="#signupBtnClicked" text="SignUp Instead" />
-            <Button fx:id="retryBtn1" layoutX="14.0" layoutY="59.0" mnemonicParsing="false" onAction="#retryBtnClicked" text="Retry" />
+            <Button layoutX="14.0" layoutY="59.0" mnemonicParsing="false" onAction="#retryBtnClicked" text="Retry" />
          </children>
       </Pane>
       <Pane fx:id="paneUsername" layoutX="171.0" layoutY="173.0" prefHeight="118.0" prefWidth="322.0" style="-fx-background-color: white;" visible="false">
@@ -49,7 +49,7 @@
                   <Font size="25.0" />
                </font>
             </Text>
-            <Button fx:id="retryBtn" layoutX="116.0" layoutY="59.0" mnemonicParsing="false" onAction="#retryBtnClicked" text="Retry" />
+            <Button layoutX="116.0" layoutY="59.0" mnemonicParsing="false" onAction="#retryBtnClicked" text="Retry" />
          </children>
       </Pane>
    </children>

@@ -80,29 +80,6 @@ public class Student {
         this.name = name;
     }
 
-    public void setAge(String age) {
-        this.age = age;
-    }
-
-    public void setClassLevel(String classLevel) {
-        this.classLevel = classLevel;
-    }
-
-    public void setDivision(String division) {
-        this.division = division;
-    }
-
-    public void setSex(String sex) {
-        this.sex = sex;
-    }
-
-    public void setSeatingPreference(String seatingPreference) {
-        this.seatingPreference = seatingPreference;
-    }
-
-    public void setImage(Image image) {
-        this.image = image;
-    }
 
 
     public List<Student> getCannotSitWith() {
@@ -114,34 +91,9 @@ public class Student {
     }
 
 
-    public static List<Student> getStudentsWithNamesMatching(String name)
-    {
-        List<Student> studentsWithNames = new ArrayList<>();
-        for(Student student : students)
-        {
-            if(student.getName().equals(name))
-            {
-                studentsWithNames.add(student);
-            }
-        }
-
-        return studentsWithNames;
-    }
 
 
-    public static List<Student> getStudentsWithNamesMatching(List<String> name)
-    {
-        List<Student> studentsWithNames = new ArrayList<>();
-        for(Student student : students)
-        {
-            if(name.contains(student.getName()))
-            {
-                studentsWithNames.add(student);
-            }
-        }
 
-        return studentsWithNames;
-    }
 
 
     public int getDbID() {

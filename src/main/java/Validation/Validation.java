@@ -134,7 +134,7 @@ public class Validation
                  */
                 if (!classLevel.equals("Primary School") &&
                         !classLevel.equals("Middle School") &&
-                        !classLevel.equals("Secondary School") &&
+                        !classLevel.equals("High School") &&
                         !classLevel.equals("Higher Secondary School") &&
                         !classLevel.equals(String.valueOf(CODES.EMPTY))) {
                     System.out.println(CODES.INVALID + "Problem with class");

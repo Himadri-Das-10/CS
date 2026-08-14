@@ -30,19 +30,13 @@ public class Home {
     private Button enterBtn;
 
     @FXML
-    private Button retryBtn;
-
-    @FXML
-    private Button retryBtn1;
-
-    @FXML
     private Button signupBtn;
 
     @FXML
     private TextField usernameTF;
 
 
-    boolean skip = false; //Used for testing and skipping the login part everytime opening a new instance
+
 
 
     private static Home home;
@@ -64,7 +58,7 @@ public class Home {
             return;
         }
 
-        CODES cd = skip? CODES.SUCCESS: Backend.getInstance().checkUser(email, username);
+        CODES cd = Backend.getInstance().checkUser(email, username);
 
         switch(cd)
         {

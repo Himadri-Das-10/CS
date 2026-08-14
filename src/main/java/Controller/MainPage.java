@@ -28,9 +28,11 @@ import javafx.stage.FileChooser;
 import CODES.CODES;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class MainPage {
 
@@ -667,14 +669,12 @@ public class MainPage {
     @FXML
     void sepBoysAndGirlsSelected(ActionEvent event)
     {
-        SeprateTask.getInstance().offload(()->
-        {
+
             Platform.runLater(()-> {
                 studentVBox.getChildren().clear();
                 PartStudents.getInstance().partStudents(studentVBox);
             });
 
-        });
 
         personalizeMenu.setText("Separate Boy and Girls");
     }
@@ -683,14 +683,11 @@ public class MainPage {
     void shuffleStudentsSelected(ActionEvent event)
     {
 
-        SeprateTask.getInstance().offload(()->
-        {
             Platform.runLater(()-> {
                 studentVBox.getChildren().clear();
                 RanShuffleStudent.getInstance().ranShuffleStudent(studentVBox);
             });
 
-        });
 
         personalizeMenu.setText("Shuffle Students");
 
@@ -699,14 +696,13 @@ public class MainPage {
     @FXML
     void sortSelected(ActionEvent event)
     {
-        SeprateTask.getInstance().offload(()->
-        {
+
             Platform.runLater(()-> {
                 studentVBox.getChildren().clear();
                 SortStudents.getInstance().sortStudents(studentVBox);
             });
 
-        });
+
 
         personalizeMenu.setText("Sort");
 
@@ -896,37 +892,42 @@ public class MainPage {
     @FXML
     void exportToPDFBtnClicked(ActionEvent event)
     {
+        List<File> saveFile = new ArrayList<>();
+        Map<String, String> data = new HashMap<>();
+        Platform.runLater(()->{
 
+            data.put(PdfExport.KEY_NAME, usernameTF.getText());
+
+            data.put(PdfExport.KEY_SETTING, settingMenu.getText().equals("Setting")?"Classroom":settingMenu.getText().strip());
+            data.put(PdfExport.KEY_TOTAL_STUDENTS, String.valueOf(Student.students.size()));
+            data.put(PdfExport.KEY_TOTAL_SEATS, guestNumTF.getText());
+
+
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Save Seating Report");
+            fileChooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter("PDF Files", "*.pdf")
+            );
+
+
+
+            saveFile.add(fileChooser.showSaveDialog(SceneManager.getInstance().getMainStage()));
+        });
 
             SeprateTask.getInstance().offload(()->{
 
-                Platform.runLater(()->{
-                    Map<String, String> data = new HashMap<>();
-                    data.put(PdfExport.KEY_NAME, usernameTF.getText());
-
-                    data.put(PdfExport.KEY_SETTING, settingMenu.getText().equals("Setting")?"Classroom":settingMenu.getText().strip());
-                    data.put(PdfExport.KEY_TOTAL_STUDENTS, String.valueOf(Student.students.size()));
-                    data.put(PdfExport.KEY_TOTAL_SEATS, guestNumTF.getText());
 
 
-                    FileChooser fileChooser = new FileChooser();
-                    fileChooser.setTitle("Save Seating Report");
-                    fileChooser.getExtensionFilters().add(
-                            new FileChooser.ExtensionFilter("PDF Files", "*.pdf")
-                    );
-
-                    File saveFile = fileChooser.showSaveDialog(SceneManager.getInstance().getMainStage());
-
-                    if (saveFile != null) {
+                    if (saveFile.getFirst() != null) {
                         PdfExport.getInstance().convertIntoPdf(
                                 data,
                                 studentVBox,
                                 seatGrid,   // your GridPane field, once added
-                                saveFile.getAbsolutePath()
+                                saveFile.getFirst().getAbsolutePath()
                         );
 
                     }
-                });
+
 
             });
     }
