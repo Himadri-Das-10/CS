@@ -1,7 +1,7 @@
 package Controller;
 
 import Backend.Backend;
-import CODES.CODES;
+import Enums.CODES;
 import SceneManager.SceneManager;
 import Validation.Validation;
 import javafx.event.ActionEvent;

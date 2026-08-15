@@ -1,7 +1,6 @@
 package Validation;
 
-import CODES.CODES;
-import javafx.application.Platform;
+import Enums.CODES;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 

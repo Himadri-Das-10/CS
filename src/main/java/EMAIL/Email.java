@@ -1,6 +1,6 @@
 package EMAIL;
 
-import CODES.CODES;
+import Enums.CODES;
 import Offload.SeprateTask;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;

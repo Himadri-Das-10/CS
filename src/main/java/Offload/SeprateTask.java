@@ -70,30 +70,7 @@ public class SeprateTask {
         });
     }
 
-    /**
-     * Executes a task asynchronously on a background thread with a dedicated error handler.
-     *
-     * @param task the Runnable task to execute
-     * @param onError callback invoked if an unhandled exception occurs
-     */
-    public void offload(Runnable task, Consumer<Throwable> onError) {
-        if (task == null) {
-            return;
-        }
 
-        executorService.submit(() -> {
-            try {
-                task.run();
-            } catch (Throwable t) {
-                if (onError != null) {
-                    onError.accept(t);
-                } else {
-                    System.err.println("[SeprateTask] Exception in background task: " + t.getMessage());
-                    t.printStackTrace();
-                }
-            }
-        });
-    }
 
     /**
      * Gracefully shuts down the background executor service.

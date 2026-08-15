@@ -1,7 +1,7 @@
 package Controller;
 
 import Backend.Backend;
-import CODES.CODES;
+import Enums.CODES;
 import EMAIL.Email;
 import Features.Student;
 import SceneManager.SceneManager;

@@ -2,9 +2,9 @@ package Controller;
 
 import Backend.Backend;
 
+import Enums.Setting;
 import Features.*;
 
-import Offload.SeprateTask;
 import SceneManager.SceneManager;
 import UI_Element.Cards;
 import UI_Element.CheckMenu;
@@ -25,14 +25,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
-import CODES.CODES;
+import Enums.CODES;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class MainPage {
 
@@ -703,7 +701,7 @@ public class MainPage {
         CODES cd = Validation.getInstance().validateIntegerField(errorPane, guestNumTF.getText().strip(), errorText, "SEATS", guestNumLabel.getText().strip());
         if(!cd.toString().equals("INVALID"))
         {
-            Enums.RoomType rtype = Enums.RoomType.fromString(settingMenu.getText());
+            Setting rtype = Setting.fromString(settingMenu.getText());
 
             AllotStudents.getInstance().renderSeating(
                     AllotStudents.getInstance().generateSeating(Student.students,

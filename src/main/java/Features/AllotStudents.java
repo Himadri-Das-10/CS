@@ -7,7 +7,7 @@ import javafx.geometry.Pos;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.ColumnConstraints;
-import Enums.RoomType;
+import Enums.Setting;
 import Enums.SeatingPreference;
 import Enums.Sex;
 import java.util.*;
@@ -32,7 +32,7 @@ public class AllotStudents {
     // Remembered from the most recent generateSeating call, so
     // renderSeating knows whether to draw aisle gaps without the
     // caller having to pass the room type twice.
-    private RoomType roomType;
+    private Setting setting;
 
     // Loaded once and reused for every seat, rather than
     // re-reading the file from disk for each cell.
@@ -66,9 +66,9 @@ public class AllotStudents {
      * Returns the list of Seats with students allocated, or null
      * if no valid arrangement exists.
      */
-    public List<Seat> generateSeating(List<Student> students, int numberOfSeats, RoomType roomType) {
+    public List<Seat> generateSeating(List<Student> students, int numberOfSeats, Setting setting) {
 
-        this.roomType = roomType;
+        this.setting = setting;
 
         calculateDimensions(numberOfSeats);
 
@@ -91,7 +91,7 @@ public class AllotStudents {
         int cols = (int) Math.ceil(Math.sqrt(numberOfSeats));
         int seatRows = (int) Math.ceil((double) numberOfSeats / cols);
 
-        if (roomType == RoomType.COMPUTER_LAB && seatRows > 0)
+        if (setting == Setting.COMPUTER_LAB && seatRows > 0)
         {
             // Interleave an aisle row between every pair of seat
             // rows, e.g. 4 seat rows -> seat, aisle, seat, aisle,
@@ -119,7 +119,7 @@ public class AllotStudents {
 
             // In a Computer Lab, odd-indexed rows are aisles —
             // no seats are placed there at all.
-            if (roomType == RoomType.COMPUTER_LAB && r % 2 != 0) {
+            if (setting == Setting.COMPUTER_LAB && r % 2 != 0) {
                 continue;
             }
 
@@ -326,7 +326,7 @@ public class AllotStudents {
         for (int r = 0; r < rows; r++) {
 
             boolean isAisleRow =
-                    roomType == RoomType.COMPUTER_LAB && r % 2 != 0;
+                    setting == Setting.COMPUTER_LAB && r % 2 != 0;
 
             RowConstraints rowConstraints = new RowConstraints();
             rowConstraints.setMinHeight(isAisleRow ? 30 : 90);

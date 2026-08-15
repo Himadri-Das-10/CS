@@ -1,4 +1,4 @@
-package CODES;
+package Enums;
 
 public enum CODES {
     SUCCESS,
